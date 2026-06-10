@@ -115,10 +115,10 @@ describe("submitContactForm", () => {
     expect(call.text).toContain("Jane Doe");
     expect(call.text).toContain("jane@example.com");
     expect(call.text).toContain("IP: 192.168.1.1");
-    expect(call.text).toContain("Idioma (locale): es");
+    expect(call.text).toContain("Idioma (locale): fr");
     expect(call.html).toContain("192.168.1.1");
     expect(call.html).toContain("Nuevo mensaje de contacto");
-    expect(call.html).toContain("Idioma (locale):</strong> es");
+    expect(call.html).toContain("Idioma (locale):</strong> fr");
   });
 
   it("includes form locale in body when form_locale is en", async () => {

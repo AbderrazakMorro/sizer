@@ -19,13 +19,13 @@ function AuthCompleteContent() {
     const isDemoAccess = searchParams.get("demo") === "1";
     const pathname =
       typeof window !== "undefined" ? window.location.pathname : "";
-    const localeMatch = pathname.match(/^\/(en|es)\//);
-    const locale = localeMatch ? localeMatch[1] : "es";
+    const localeMatch = pathname.match(/^\/(en|fr)\//);
+    const locale = localeMatch ? localeMatch[1] : "fr";
 
     const hash =
       typeof window !== "undefined" ? window.location.hash.slice(1) : "";
     if (!hash) {
-      window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("No se recibió el enlace de acceso.")}&redirect=${encodeURIComponent(redirectPath)}`;
+      window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("Aucun lien d'accès n'a été reçu.")}&redirect=${encodeURIComponent(redirectPath)}`;
       return;
     }
 
@@ -35,7 +35,7 @@ function AuthCompleteContent() {
 
     if (!accessToken || !refreshToken) {
       setStatus("error");
-      window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("Enlace inválido o expirado.")}&redirect=${encodeURIComponent(redirectPath)}`;
+      window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("Lien invalide ou expiré.")}&redirect=${encodeURIComponent(redirectPath)}`;
       return;
     }
 
@@ -49,7 +49,7 @@ function AuthCompleteContent() {
       })
       .catch(() => {
         setStatus("error");
-        window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("No se pudo iniciar sesión.")}&redirect=${encodeURIComponent(redirectPath)}`;
+        window.location.href = `/${locale}/sign-in?error=${encodeURIComponent("Impossible de se connecter.")}&redirect=${encodeURIComponent(redirectPath)}`;
       });
   }, [searchParams]);
 

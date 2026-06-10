@@ -43,7 +43,7 @@ const PUBLIC_ROUTES = [
 
 function isPublicPath(pathname: string): boolean {
   // Remove locale prefix if present (e.g., /en/about-veta -> /about, /en -> /)
-  let pathnameWithoutLocale = pathname.replace(/^\/(en|es)/, "");
+  let pathnameWithoutLocale = pathname.replace(/^\/(en|fr)/, "");
   // If removing locale leaves empty string, it means it was just /en or /es (homepage)
   if (pathnameWithoutLocale === "") {
     pathnameWithoutLocale = "/";
@@ -89,9 +89,9 @@ export async function updateSession(request: NextRequest) {
       } = await supabase.auth.getUser();
       if (user) {
         // Extract locale if present
-        const localeMatch = pathname.match(/^\/(en|es)/);
+        const localeMatch = pathname.match(/^\/(en|fr)/);
         const pathnameWithoutLocale = localeMatch
-          ? pathname.replace(/^\/(en|es)/, "")
+          ? pathname.replace(/^\/(en|fr)/, "")
           : pathname;
 
         if (pathnameWithoutLocale === "/sign-in") {
@@ -186,9 +186,9 @@ export async function updateSession(request: NextRequest) {
       const redirectTo = encodeURIComponent(
         request.nextUrl.pathname + request.nextUrl.search
       );
-      // Preserve locale in sign-in redirect (default to es if no locale)
-      const localeMatch = pathname.match(/^\/(en|es)/);
-      const locale = localeMatch ? localeMatch[1] : "es";
+      // Preserve locale in sign-in redirect (default to fr if no locale)
+      const localeMatch = pathname.match(/^\/(en|fr)/);
+      const locale = localeMatch ? localeMatch[1] : "fr";
       url.pathname = `/${locale}/sign-in`;
       url.searchParams.set("redirect", redirectTo);
       return redirectWithCookies(url);

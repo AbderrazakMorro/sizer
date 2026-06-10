@@ -99,8 +99,8 @@ export async function GET(request: NextRequest) {
         error.code
       );
       const pathname = request.nextUrl.pathname;
-      const localeMatch = pathname.match(/^\/(en|es)\//);
-      const locale = localeMatch ? localeMatch[1] : "es";
+      const localeMatch = pathname.match(/^\/(en|fr)\//);
+      const locale = localeMatch ? localeMatch[1] : "fr";
       const authUrl = new URL(`/${locale}/sign-in`, origin);
       authUrl.searchParams.set("error", friendlyMessage);
       authUrl.searchParams.set("redirect", redirectPath);
@@ -109,12 +109,12 @@ export async function GET(request: NextRequest) {
   }
 
   const pathname = request.nextUrl.pathname;
-  const localeMatch = pathname.match(/^\/(en|es)\//);
-  const locale = localeMatch ? localeMatch[1] : "es";
+  const localeMatch = pathname.match(/^\/(en|fr)\//);
+  const locale = localeMatch ? localeMatch[1] : "fr";
   const authUrl = new URL(`/${locale}/sign-in`, origin);
   authUrl.searchParams.set(
     "error",
-    "No se recibió el código de acceso. Por favor, intenta acceder nuevamente."
+    "Aucun code d'accès n'a été reçu. Veuillez réessayer."
   );
   authUrl.searchParams.set("redirect", appPath("/dashboard"));
   return NextResponse.redirect(authUrl.toString());

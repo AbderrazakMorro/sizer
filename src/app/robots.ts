@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/veta-app", "/callback"],
+      disallow: ["/sizer-app", "/callback"],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   };

@@ -25,16 +25,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Contact" });
-  const canonical = locale === "es" ? "/contacto" : "/en/contact";
+  const canonical = locale === "fr" ? "/contact" : "/en/contact";
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: {
       canonical,
       languages: {
-        es: "/contacto",
+        fr: "/contact",
         en: "/en/contact",
-        "x-default": "/contacto",
+        "x-default": "/contact",
       },
     },
     openGraph: {

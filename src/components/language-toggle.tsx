@@ -6,7 +6,7 @@ import { routing } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n/config";
 
-type Locales = "en" | "es";
+type Locales = "en" | "fr";
 type PathnamesMap = Record<string, Partial<Record<Locales, string>>>;
 
 function normalizePath(p: string): string {
@@ -46,7 +46,7 @@ function fallbackBlogDestination(
  * Builds the canonical destination URL for a locale switch.
  *
  * Strategy (localePrefix: "as-needed"):
- *  - ES (default): no prefix → "/precios", "/"
+ *  - FR (default): no prefix → "/tarifs", "/"
  *  - EN: "/en" prefix → "/en/pricing", "/en"
  *
  * We resolve the destination by:
@@ -143,7 +143,7 @@ export function LanguageToggle() {
 
   const toggleLocale = () => {
     void (async () => {
-      const newLocale: Locale = locale === "en" ? "es" : "en";
+      const newLocale: Locale = locale === "en" ? "fr" : "en";
       const currentFullPath =
         typeof window !== "undefined" ? window.location.pathname : "/";
 
@@ -165,11 +165,11 @@ export function LanguageToggle() {
       variant="ghost"
       size="sm"
       onClick={toggleLocale}
-      aria-label={`Switch to ${locale === "en" ? "Español" : "English"}`}
+      aria-label={`Switch to ${locale === "en" ? "Français" : "English"}`}
       className="gap-1.5 text-sm font-medium"
     >
       <Globe2 className="h-4 w-4" />
-      {locale === "en" ? "ES" : "EN"}
+      {locale === "en" ? "FR" : "EN"}
     </Button>
   );
 }

@@ -34,11 +34,11 @@ export async function generateMetadata({
   const description = post.excerpt || t("postMetaDescriptionFallback");
   const canonical = getPublicBlogPostPath(locale, slug);
 
-  const esPath =
-    locale === "es"
+  const frPath =
+    locale === "fr"
       ? canonical
-      : post.translations.es
-        ? getPublicBlogPostPath("es", post.translations.es)
+      : post.translations.fr
+        ? getPublicBlogPostPath("fr", post.translations.fr)
         : undefined;
   const enPath =
     locale === "en"
@@ -48,10 +48,10 @@ export async function generateMetadata({
         : undefined;
 
   const languages: Record<string, string> = {
-    "x-default": esPath ?? enPath ?? canonical,
+    "x-default": frPath ?? enPath ?? canonical,
   };
-  if (esPath) {
-    languages.es = esPath;
+  if (frPath) {
+    languages.fr = frPath;
   }
   if (enPath) {
     languages.en = enPath;

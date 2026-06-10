@@ -35,8 +35,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "PlanStudio" });
   const canonical =
-    locale === "es"
-      ? "/plan-studio-empresas-arquitectura-diseno-interior"
+    locale === "fr"
+      ? "/plan-studio-entreprise"
       : "/en/studio-plan-for-architecture-and-interior-design-firms";
   return {
     title: t("metaTitle"),
@@ -44,9 +44,9 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        es: "/plan-studio-empresas-arquitectura-diseno-interior",
+        fr: "/plan-studio-entreprise",
         en: "/en/studio-plan-for-architecture-and-interior-design-firms",
-        "x-default": "/plan-studio-empresas-arquitectura-diseno-interior",
+        "x-default": "/plan-studio-entreprise",
       },
     },
     openGraph: {

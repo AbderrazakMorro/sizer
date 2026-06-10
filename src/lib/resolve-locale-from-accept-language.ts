@@ -2,7 +2,7 @@ import type { Locale } from "@/i18n/config";
 import { defaultLocale, locales } from "@/i18n/config";
 
 /**
- * Picks the first supported app locale (en | es) from an Accept-Language header.
+ * Picks the first supported app locale (en | fr) from an Accept-Language header.
  * Falls back to defaultLocale when nothing matches.
  */
 export function resolveLocaleFromAcceptLanguage(
@@ -33,7 +33,7 @@ export function resolveLocaleFromAcceptLanguage(
     if (!tag) continue;
     const primary = tag.split("-")[0];
     if (primary === "en") return "en";
-    if (primary === "es") return "es";
+    if (primary === "fr") return "fr";
   }
 
   return defaultLocale;

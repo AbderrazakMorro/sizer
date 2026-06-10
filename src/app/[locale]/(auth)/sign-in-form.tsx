@@ -28,32 +28,23 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { pushLogin } from "@/lib/gtm";
-import { CaptchaGuard } from "@/lib/anti-spam/react";
-import { translateMagicLinkErrorCode } from "@/lib/auth/magic-link-error-i18n";
 
-type SignInValues = { email: string };
+type SignInValues = { email: string; password: string };
 
-type SignInFormProps = {
-  /** From Server Component so Turnstile works without relying on client bundle env inlining. */
-  turnstileSiteKey?: string | null;
-};
-
-export function SignInForm({
-  turnstileSiteKey: turnstileSiteKeyProp = null,
-}: SignInFormProps = {}) {
+export function SignInForm() {
   const t = useTranslations("SignIn");
   const locale = useLocale();
+  const isFr = locale === "fr";
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
   const errorParam = searchParams.get("error");
   const emailUpdated = searchParams.get("email_updated");
 
   const [loading, setLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [needsCaptcha, setNeedsCaptcha] = useState(false);
 
   const signInSchema = z.object({
     email: z.string().email(t("emailInvalid")),
+    password: z.string().min(1, isFr ? "Le mot de passe est requis" : "Password is required"),
   });
 
   useEffect(() => {
@@ -73,7 +64,7 @@ export function SignInForm({
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
     mode: "onTouched",
-    defaultValues: { email: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   const watchedEmail = form.watch("email");
@@ -81,141 +72,32 @@ export function SignInForm({
   const isEmailValid =
     emailTrimmed.length > 0 &&
     z.string().email().safeParse(emailTrimmed).success;
-
-  const turnstileSiteKey =
-    turnstileSiteKeyProp?.trim() ||
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ||
-    "";
-
-  useEffect(() => {
-    setNeedsCaptcha(false);
-  }, [watchedEmail]);
-
-  function applySuccessAfterMagicLink(isResend: boolean) {
-    pushLogin({ method: "magic_link" });
-    if (!isResend) {
-      setEmailSent(true);
-      toast.success(t("toastSuccess"));
-    } else {
-      toast.success(t("toastResend"));
-    }
-  }
-
-  async function submitMagicLink(
-    values: SignInValues,
-    captchaToken?: string
-  ): Promise<{ sent: boolean }> {
-    const finalRedirect = redirectTo || appPath("/dashboard");
-    const callbackUrl = `${window.location.origin}/${locale}/callback?next=${encodeURIComponent(finalRedirect)}&type=login`;
-
-    const response = await fetch("/api/auth/magic-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: values.email,
-        emailRedirectTo: callbackUrl,
-        lang: locale,
-        ...(captchaToken ? { captchaToken } : {}),
-      }),
-    });
-
-    const errorData = (await response.json().catch(() => ({}))) as {
-      error?: string;
-      code?: string;
-    };
-
-    if (!response.ok) {
-      if (errorData.code === "captcha_required") {
-        setNeedsCaptcha(true);
-        toast.info(t("captchaRequired"));
-        if (!turnstileSiteKey) {
-          toast.error(t("captchaMisconfigured"));
-        }
-        return { sent: false };
-      }
-      const mapped = translateMagicLinkErrorCode(errorData.code, t);
-      throw new Error(mapped ?? errorData.error ?? "Failed to send magic link");
-    }
-
-    setNeedsCaptcha(false);
-    return { sent: true };
-  }
+  const watchedPassword = form.watch("password") ?? "";
 
   async function onSubmit(values: SignInValues) {
     setLoading(true);
     try {
-      const { sent } = await submitMagicLink(values);
-      if (!sent) {
-        return;
+      const supabase = getSupabaseClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password || "",
+      });
+
+      if (error) {
+        throw error;
       }
-      applySuccessAfterMagicLink(false);
-    } catch (error: unknown) {
+
+      pushLogin({ method: "password" });
+      toast.success(isFr ? "Connexion réussie !" : "Sign in successful!");
+      
+      const finalRedirect = redirectTo || appPath("/dashboard");
+      window.location.href = finalRedirect;
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : t("toastError");
       toast.error(message);
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleResend() {
-    const email = form.getValues("email");
-    if (!email) return;
-
-    setLoading(true);
-    try {
-      const { sent } = await submitMagicLink({ email }, undefined);
-      if (!sent) {
-        setEmailSent(false);
-        return;
-      }
-      applySuccessAfterMagicLink(true);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : t("toastResendError");
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (emailSent) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">
-            {t("emailSentTitle")}
-          </h1>
-          <CardDescription>
-            {t("emailSentDescription")}{" "}
-            <strong>{form.getValues("email")}</strong>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              {t("emailSentClick")}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {t("emailSentNoEmail")}
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-row flex-wrap items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setEmailSent(false);
-              form.reset();
-            }}
-          >
-            {t("back")}
-          </Button>
-          <Button variant="link" onClick={handleResend} disabled={loading}>
-            {loading ? t("resending") : t("resend")}
-          </Button>
-        </CardFooter>
-      </Card>
-    );
   }
 
   return (
@@ -225,7 +107,11 @@ export function SignInForm({
           {t("title")}
         </h1>
         <CardDescription>
-          {redirectTo ? t("descriptionSessionExpired") : t("description")}
+          {redirectTo
+            ? t("descriptionSessionExpired")
+            : isFr
+            ? "Entrez votre e-mail et votre mot de passe pour vous connecter."
+            : "Enter your email and password to sign in."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -253,66 +139,30 @@ export function SignInForm({
                 </FormItem>
               )}
             />
-            {needsCaptcha ? (
-              turnstileSiteKey ? (
-                <div
-                  className="border-primary/40 bg-muted/40 space-y-2 rounded-lg border p-3"
-                  role="region"
-                  aria-label={t("captchaRequired")}
-                >
-                  <p className="text-muted-foreground text-sm">
-                    {t("captchaRequired")}
-                  </p>
-                  <CaptchaGuard
-                    key={emailTrimmed}
-                    provider="turnstile"
-                    siteKey={turnstileSiteKey}
-                    loadingLabel={t("captchaLoading")}
-                    loadFailedLabel={t("captchaLoadFailed")}
-                    onError={(err) => toast.error(err.message)}
-                    onVerify={(token) => {
-                      void (async () => {
-                        setLoading(true);
-                        try {
-                          const { sent } = await submitMagicLink(
-                            form.getValues(),
-                            token
-                          );
-                          if (!sent) {
-                            return;
-                          }
-                          applySuccessAfterMagicLink(false);
-                        } catch (error: unknown) {
-                          const message =
-                            error instanceof Error
-                              ? error.message
-                              : t("toastError");
-                          toast.error(message);
-                        } finally {
-                          setLoading(false);
-                        }
-                      })();
-                    }}
-                  />
-                </div>
-              ) : (
-                <div
-                  className="border-destructive/40 bg-destructive/5 rounded-lg border p-3"
-                  role="alert"
-                >
-                  <p className="text-destructive text-sm font-medium">
-                    {t("captchaMisconfigured")}
-                  </p>
-                </div>
-              )
-            ) : null}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isFr ? "Mot de passe" : "Password"}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button
               type="submit"
               size="lg"
               className="w-full sm:w-auto"
-              disabled={loading || !isEmailValid}
+              disabled={loading || !isEmailValid || watchedPassword.length === 0}
             >
-              {loading ? t("submitting") : t("submit")}
+              {loading ? t("submitting") : isFr ? "Se connecter" : "Sign In"}
             </Button>
           </form>
         </Form>

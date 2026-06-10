@@ -100,6 +100,24 @@
     "export": "Export",
     "exportDesc": "Generate professional budgets and documents for your clients."
   },
+  "ProductMockup": {
+    "title": "veta.pro",
+    "projects": "Projects",
+    "clients": "Clients",
+    "revenue": "Revenue",
+    "recentProjects": "Recent projects",
+    "project1Name": "Villa Costa Brava",
+    "project1Client": "Mr. García López",
+    "project2Name": "Paris 15th Reno.",
+    "project2Client": "Maison Charme",
+    "project3Name": "Brooklyn Loft",
+    "project3Client": "Davis Corp",
+    "projectStatusConstruction": "Construction",
+    "projectStatusExecutiveDesign": "Executive design",
+    "newProjectsBadge": "2 new projects",
+    "catalog": "Catalog",
+    "catalogCount": "456 items"
+  },
   "Benefits": {
     "sectionTitle": "Why",
     "sectionTitleHighlight": "choose Veta",
@@ -175,6 +193,18 @@
     "creatorName": "Marco Gonzalo Gómez Pérez",
     "creatorLinkedinTitle": "Profile of Marco Gonzalo Gómez Pérez, creator of Veta, on LinkedIn",
     "creatorBio": "Full-stack developer with experience in digital products, APIs, and web applications. He has worked on product and technology teams in various sectors, from startups to established companies. He has an entrepreneurial background in Venezuela and Spain, with recognition from entrepreneurship and excellence awards in both countries."
+  },
+  "PortfolioSection": {
+    "sectionTitle": "Our Projects",
+    "sectionTitleHighlight": "Inspiration",
+    "sectionSubtitle": "Explore our completed interior design and architecture projects for inspiration.",
+    "errorFetching": "Failed to load projects. Please try again.",
+    "retry": "Retry",
+    "noCompletedProjects": "No completed projects to display yet.",
+    "noSpaceAvailable": "This project has no available space to display images.",
+    "images": "images",
+    "space": "Space",
+    "status": "Status"
   },
   "Contact": {
     "metaTitle": "Contact. Response in under 24h",

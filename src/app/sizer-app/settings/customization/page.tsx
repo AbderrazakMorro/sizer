@@ -86,7 +86,7 @@ export default function CustomizationPage() {
 
   const formLanguage = useForm<LanguageFormValues>({
     resolver: zodResolver(languageFormSchema),
-    defaultValues: { lang: "es", date_format: "DD/MM/YYYY" },
+    defaultValues: { lang: "fr", date_format: "DD/MM/YYYY" },
   });
 
   const fetchProfile = async () => {
@@ -120,7 +120,7 @@ export default function CustomizationPage() {
             default_currency: "EUR",
             public_name: null,
             public_email: null,
-            lang: "es",
+            lang: "fr",
             date_format: "DD/MM/YYYY",
           });
         if (insertError) throw insertError;
@@ -144,9 +144,9 @@ export default function CustomizationPage() {
       });
       formLanguage.reset({
         lang:
-          settingsData?.lang === "en" || settingsData?.lang === "es"
+          settingsData?.lang === "en" || settingsData?.lang === "fr"
             ? settingsData.lang
-            : "es",
+            : "fr",
         date_format:
           settingsData?.date_format === "YYYY-MM-DD" ||
           settingsData?.date_format === "MM/DD/YYYY" ||
@@ -309,7 +309,7 @@ export default function CustomizationPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="es">{tLang("langEs")}</SelectItem>
+                          <SelectItem value="fr">{tLang("langFr")}</SelectItem>
                           <SelectItem value="en">{tLang("langEn")}</SelectItem>
                         </SelectContent>
                       </Select>

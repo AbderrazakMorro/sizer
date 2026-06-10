@@ -88,11 +88,11 @@ const STYLES = `      body {
 
 export function getDemoAccessEmailHtml(
   actionLink: string,
-  lang: Locale = "es"
+  lang: Locale = "fr"
 ): string {
   const safeLink = escapeHtml(actionLink);
   const isEn = lang === "en";
-  const htmlLang = isEn ? "en" : "es";
+  const htmlLang = isEn ? "en" : "fr";
   const title = isEn
     ? "Your link to try the Veta demo"
     : "Tu enlace para probar la demo de Veta";
@@ -143,7 +143,7 @@ ${STYLES}
 
 export function getDemoAccessEmailText(
   actionLink: string,
-  lang: Locale = "es"
+  lang: Locale = "fr"
 ): string {
   if (lang === "en") {
     return `Hello,

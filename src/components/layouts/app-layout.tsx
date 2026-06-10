@@ -43,7 +43,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { VetaLogo } from "@/components/veta-logo";
+import { SizerLogo } from "@/components/veta-logo";
 import {
   Sheet,
   SheetContent,
@@ -237,31 +237,95 @@ function SidebarContent({
   className?: string;
 }) {
   const tNav = useTranslations("AppNav");
-  const navItems = useMemo(
-    () => [
-      {
-        name: tNav("dashboard"),
-        href: appPath("/dashboard"),
-        icon: LayoutDashboard,
-      },
-      {
-        name: tNav("projects"),
-        href: appPath("/projects"),
-        icon: FolderKanban,
-      },
-      { name: tNav("clients"), href: appPath("/clients"), icon: Users },
-      {
-        name: tNav("suppliers"),
-        href: appPath("/suppliers"),
-        icon: Truck,
-      },
-      { name: tNav("catalog"), href: appPath("/catalog"), icon: ShoppingBag },
-    ],
-    [tNav]
-  );
-  const settingsNavItems = useMemo(
-    () => [
-      { name: tNav("back"), href: appPath("/dashboard"), icon: ArrowLeft },
+  const { roles } = useAuth();
+
+  const navItems = useMemo(() => {
+    const items = [];
+    const rolesList = roles && roles.length > 0 ? roles : ["client"];
+
+    // 1. Client navigation items
+    if (rolesList.includes("client")) {
+      items.push(
+        {
+          name: tNav("clientDashboard"),
+          href: appPath("/client"),
+          icon: LayoutDashboard,
+        },
+        {
+          name: tNav("requestServices"),
+          href: appPath("/client/services"),
+          icon: FolderKanban,
+        }
+      );
+    }
+
+    // 2. Internal Staff (architect, site_manager, admin) navigation items
+    const isInternal = rolesList.some((r) =>
+      ["architect", "site_manager", "admin"].includes(r)
+    );
+    if (isInternal) {
+      items.push(
+        {
+          name: tNav("dashboard"),
+          href: appPath("/dashboard"),
+          icon: LayoutDashboard,
+        },
+        {
+          name: tNav("projects"),
+          href: appPath("/projects"),
+          icon: FolderKanban,
+        },
+        {
+          name: tNav("clients"),
+          href: appPath("/clients"),
+          icon: Users,
+        },
+        {
+          name: tNav("suppliers"),
+          href: appPath("/suppliers"),
+          icon: Truck,
+        },
+        {
+          name: tNav("catalog"),
+          href: appPath("/catalog"),
+          icon: ShoppingBag,
+        }
+      );
+    }
+
+    // 3. Admin specific navigation items
+    if (rolesList.includes("admin")) {
+      items.push(
+        {
+          name: tNav("users"),
+          href: appPath("/admin/users"),
+          icon: Users,
+        },
+        {
+          name: tNav("hr"),
+          href: appPath("/admin/hr"),
+          icon: SlidersHorizontal,
+        },
+        {
+          name: tNav("site"),
+          href: appPath("/admin/site"),
+          icon: Settings,
+        }
+      );
+    }
+
+    return items;
+  }, [roles, tNav]);
+
+  const settingsNavItems = useMemo(() => {
+    const rolesList = roles && roles.length > 0 ? roles : ["client"];
+    const isInternal = rolesList.some((r) =>
+      ["architect", "site_manager", "admin"].includes(r)
+    );
+    const backHref = isInternal ? appPath("/dashboard") : appPath("/client");
+
+    return [
+      { name: tNav("back"), href: backHref, icon: ArrowLeft },
       { name: tNav("account"), href: appPath("/settings/account"), icon: User },
       {
         name: tNav("customization"),
@@ -273,9 +337,8 @@ function SidebarContent({
         href: appPath("/settings/plan"),
         icon: CreditCard,
       },
-    ],
-    [tNav]
-  );
+    ];
+  }, [roles, tNav]);
 
   const { theme, setTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
@@ -367,7 +430,7 @@ function SidebarContent({
             collapsed && "justify-center"
           )}
         >
-          <VetaLogo
+          <SizerLogo
             height={28}
             showWordmark={!collapsed}
             className="text-foreground"
@@ -714,8 +777,8 @@ export default function AppLayoutClient({
   };
 
   useEffect(() => {
-    document.body.classList.add("veta-app");
-    return () => document.body.classList.remove("veta-app");
+    document.body.classList.add("sizer-app");
+    return () => document.body.classList.remove("sizer-app");
   }, []);
 
   useEffect(() => {

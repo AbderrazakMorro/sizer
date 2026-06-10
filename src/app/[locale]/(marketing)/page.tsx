@@ -1,75 +1,6 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
-import { ArrowRight, Leaf } from "lucide-react";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Button } from "@/components/ui/button";
-import { JsonLd, faqPageJsonLd } from "@/components/json-ld";
-import { AnimatedSection } from "@/components/ui/animated-section";
-import { SmoothScrollLink } from "@/components/smooth-scroll-link";
-import { TrackedCtaLink } from "@/components/gtm";
-import { getSiteUrl } from "@/lib/site-url";
-
-const ProductMockup = dynamic(
-  () =>
-    import("@/components/product-mockup").then((m) => ({
-      default: m.ProductMockup,
-    })),
-  {
-    ssr: true,
-    loading: () => (
-      <div
-        className="bg-card border-border relative mx-auto h-[320px] w-full max-w-lg animate-pulse rounded-2xl border shadow-2xl"
-        aria-hidden
-      />
-    ),
-  }
-);
-
-/** Below-the-fold sections lazy-loaded to reduce initial JS bundle (framer-motion, etc.). */
-const HomeStatsSection = dynamic(
-  () =>
-    import("./_sections/home-stats-section").then((m) => m.HomeStatsSection),
-  { ssr: true }
-);
-const HomeFeaturesSection = dynamic(
-  () =>
-    import("./_sections/home-features-section").then(
-      (m) => m.HomeFeaturesSection
-    ),
-  { ssr: true }
-);
-const HomeBenefitsSection = dynamic(
-  () =>
-    import("./_sections/home-benefits-section").then(
-      (m) => m.HomeBenefitsSection
-    ),
-  { ssr: true }
-);
-const HomeTestimonialsSection = dynamic(
-  () =>
-    import("./_sections/home-testimonials-section").then(
-      (m) => m.HomeTestimonialsSection
-    ),
-  { ssr: true }
-);
-const HomeCtaBeforeFaqSection = dynamic(
-  () =>
-    import("./_sections/home-cta-before-faq-section").then(
-      (m) => m.HomeCtaBeforeFaqSection
-    ),
-  { ssr: true }
-);
-const HomeFaqSection = dynamic(
-  () => import("./_sections/home-faq-section").then((m) => m.HomeFaqSection),
-  { ssr: true }
-);
-const HomeCtaFinalSection = dynamic(
-  () =>
-    import("./_sections/home-cta-final-section").then(
-      (m) => m.HomeCtaFinalSection
-    ),
-  { ssr: true }
-);
+import { setRequestLocale } from "next-intl/server";
+import { LandingContactForm } from "./_sections/landing-contact-form";
 
 export async function generateMetadata({
   params,
@@ -77,36 +8,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "HomePage" });
-  const canonical = locale === "es" ? "/" : "/en";
+  const isFr = locale === "fr";
 
   return {
-    title: {
-      absolute: t("metaTitle"),
-    },
-    description: t("metaDescription"),
-    alternates: {
-      canonical,
-      languages: {
-        es: "/",
-        en: "/en",
-        "x-default": "/",
-      },
-    },
-    openGraph: {
-      title: t("ogTitle"),
-      description: t("ogDescription"),
-      url: canonical,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("twitterTitle"),
-      description: t("twitterDescription"),
-    },
+    title: isFr ? "SIZER - Architecture & Intérieur" : "SIZER - Architecture & Interior",
+    description: isFr
+      ? "Sizer est un cabinet de conseil créatif pluridisciplinaire basé à Casablanca, Maroc. Nous concevons des espaces qui inspirent."
+      : "Sizer is a multidisciplinary creative consulting studio based in Casablanca, Morocco. We design spaces that inspire.",
   };
 }
-
-const baseUrl = getSiteUrl();
 
 export default async function HomePage({
   params,
@@ -116,148 +26,373 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("HomePage");
-  const tFaq = await getTranslations("Faq");
-  const homeUrl = `${baseUrl}${locale === "es" ? "" : "/en"}`;
-
-  const homeFaqs = [
-    {
-      question: tFaq("question1"),
-      answer: tFaq("answer1"),
-    },
-    {
-      question: tFaq("question2"),
-      answer: tFaq("answer2"),
-    },
-    {
-      question: tFaq("question3"),
-      answer: tFaq("answer3"),
-    },
-    {
-      question: tFaq("question4"),
-      answer: tFaq("answer4"),
-    },
-  ];
+  const isFr = locale === "fr";
 
   return (
-    <>
-      <JsonLd data={faqPageJsonLd(homeFaqs, homeUrl)} />
-
-      {/* Hero Section – momento hero: badge → título → subtítulo → CTAs con delays escalonados */}
-      <section className="hero-pattern-overlay relative overflow-hidden py-20 md:py-28">
-        {/* Background effects */}
-        <div className="from-primary/5 absolute inset-0 bg-gradient-to-br via-transparent to-transparent" />
-        <div className="bg-primary/5 absolute top-1/2 left-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
-        <div className="noise-overlay" aria-hidden />
-
-        <div className="relative container mx-auto max-w-7xl px-4">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            {/* Left: Copy */}
-            <div className="text-center lg:text-left">
-              <AnimatedSection
-                delay={0}
-                duration={0.5}
-                triggerOnMount
-                instantReveal
-              >
-                <div className="bg-primary/10 text-primary mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
-                  <Leaf className="h-4 w-4" />
-                  <span>{t("badge")}</span>
-                </div>
-              </AnimatedSection>
-
-              <AnimatedSection
-                delay={0.1}
-                duration={0.5}
-                triggerOnMount
-                instantReveal
-              >
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                  {t("title")}{" "}
-                  <strong className="text-primary">
-                    {t("titleHighlight")}
-                  </strong>
-                </h1>
-              </AnimatedSection>
-
-              <AnimatedSection
-                delay={0.2}
-                duration={0.5}
-                triggerOnMount
-                instantReveal
-              >
-                <p className="text-muted-foreground mt-6 text-lg md:text-xl">
-                  {t("subtitle")}
-                </p>
-              </AnimatedSection>
-
-              <AnimatedSection
-                delay={0.3}
-                duration={0.5}
-                triggerOnMount
-                instantReveal
-              >
-                <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
-                  <Button
-                    size="lg"
-                    asChild
-                    className="animate-glow w-full sm:w-auto"
-                  >
-                    <TrackedCtaLink
-                      href="/sign-up"
-                      ctaLocation="hero"
-                      ctaText={t("startFree")}
-                    >
-                      {t("startFree")}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </TrackedCtaLink>
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    asChild
-                    className="w-full sm:w-auto"
-                  >
-                    <SmoothScrollLink href="#features">
-                      {t("viewFeatures")}
-                    </SmoothScrollLink>
-                  </Button>
-                </div>
-
-                <p className="text-muted-foreground mt-4 text-sm">
-                  {t("trialInfo")}
-                </p>
-              </AnimatedSection>
-            </div>
-
-            {/* Product Mockup: below on small screens, right on lg+ */}
-            <AnimatedSection
-              direction="right"
-              delay={0.4}
-              duration={0.6}
-              triggerOnMount
-            >
-              <ProductMockup />
-            </AnimatedSection>
+    <main className="bg-background text-on-surface select-none">
+      {/* Hero Section */}
+      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img
+            alt="Hero Architecture Background"
+            className="w-full h-full object-cover object-center opacity-40"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKBQ1BSkEo5lSXLx84r7260DRbqRu5zBCdJZjo_cDIj-x9VPXyniURMjCJY377Sy5-5mqm8Y3Htfcr5b5Jc8qcZV5zNYTetdxx0fAi-2LemWwBSlm3xhvT0g0SaeFvaqWGVa9IW5Of-d929nMjV2x7gaIkOrcYT75lWa755CRlFxLc8J8b4Hk8JdrE5QfypJHp9aBVm8GBUOJL_hOX8trFouBZD2K_kjgUMy_9dTCAjR62C-D-PEaMYkLEgR1cnXOmlsOgGttirmA"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/50 to-background"></div>
+        </div>
+        <div className="relative z-10 text-center px-margin-mobile md:px-margin-desktop max-w-screen-xl mx-auto flex flex-col items-center">
+          <h1 className="text-display-lg font-display-lg text-on-surface mb-6 uppercase tracking-tight text-4xl sm:text-6xl md:text-8xl">
+            {isFr ? (
+              <>
+                CONCEVOIR DES ESPACES
+                <br />
+                QUI INSPIRENT
+              </>
+            ) : (
+              <>
+                DESIGNING SPACES
+                <br />
+                THAT INSPIRE
+              </>
+            )}
+          </h1>
+          <p className="text-body-lg font-body-lg text-on-surface-variant mb-10 uppercase tracking-widest text-xs sm:text-sm">
+            {isFr ? "Architecture | Intérieur | Artisans" : "Architecture | Interior | Artisans"}
+          </p>
+          <a
+            className="btn-primary px-8 py-4 text-label-sm font-label-sm uppercase tracking-[0.2em]"
+            href="#projets"
+          >
+            {isFr ? "DÉCOUVRIR NOS PROJETS" : "DISCOVER OUR PROJECTS"}
+          </a>
+        </div>
+        <div className="absolute bottom-12 left-margin-desktop hidden md:block">
+          <div className="flex flex-col gap-4 text-label-sm font-label-sm text-on-surface-variant">
+            <span>01</span>
+            <div className="w-[1px] h-12 bg-outline-variant/50 mx-auto"></div>
+            <span>05</span>
           </div>
         </div>
       </section>
 
-      {/* Franja decorativa (como la del footer) entre hero y contenido */}
-      <div
-        className="via-primary/40 h-1 w-full bg-gradient-to-r from-transparent to-transparent"
-        aria-hidden
-      />
+      {/* About Section */}
+      <section
+        className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-screen-2xl mx-auto"
+        id="apropos"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+          <div className="md:col-span-5 md:col-start-1 pr-0 md:pr-12">
+            <h2 className="text-headline-lg font-headline-lg text-on-surface mb-10 uppercase text-3xl sm:text-4xl">
+              {isFr ? "À PROPOS DE SIZER" : "ABOUT SIZER"}
+            </h2>
+            <p className="text-body-md font-body-md text-on-surface-variant mb-8 leading-relaxed">
+              {isFr
+                ? "Sizer est un cabinet de conseil créatif pluridisciplinaire basé à Casablanca, Maroc. Nous accompagnons nos clients à travers des projets de concepts, de design d'intérieur et de direction artistique, en apportant une vision globale et cohérente."
+                : "Sizer is a multidisciplinary creative consulting studio based in Casablanca, Morocco. We support our clients through concepts, interior design, and art direction projects, bringing a coherent and global vision."}
+            </p>
+            <p className="text-body-md font-body-md text-on-surface-variant mb-12 leading-relaxed italic text-primary/80 font-serif">
+              {isFr ? '"Créer avec sens, construire pour durer."' : '"Create with meaning, build to last."'}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-outline-variant/30 pt-8">
+              <div>
+                <div className="text-headline-md font-headline-md text-primary mb-2 text-2xl">10+</div>
+                <div className="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">
+                  {isFr ? "Années d'expérience" : "Years of experience"}
+                </div>
+              </div>
+              <div>
+                <div className="text-headline-md font-headline-md text-primary mb-2 text-2xl">120+</div>
+                <div className="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">
+                  {isFr ? "Projets réalisés" : "Completed projects"}
+                </div>
+              </div>
+              <div>
+                <div className="text-headline-md font-headline-md text-primary mb-2 text-2xl">50+</div>
+                <div className="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">
+                  {isFr ? "Artisans partenaires" : "Artisan partners"}
+                </div>
+              </div>
+              <div>
+                <div className="text-headline-md font-headline-md text-primary mb-2 text-2xl">1</div>
+                <div className="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">
+                  {isFr ? "Vision globale" : "Global vision"}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="md:col-span-6 md:col-start-7 mt-12 md:mt-0">
+            <div className="relative h-[800px] w-full overflow-hidden">
+              <img
+                alt="Interior Architecture Concept"
+                className="w-full h-full object-cover grayscale-[0.3] contrast-125"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCedIT2q4flgSHeODWITGJXfwryIR5d74lyvRvckJr1k4vk2q_yxF0O_5nRcgGp2piVRjHPtWGW_rOxkRtc1_-4tVNq0DYwbEdgpnGgU8-PyhqjVaBVX_E3U7z6Z1Db--shpvGN2SOmpoWdQ37eVj_fN7SjkkRfKOSYRQ4JapOcWRFT0XbMs9MzO3-LQv5bevFfYN79Ur5oxsbMs-zEkDrIPAO6ku3mvHeBE8Xtr754jtXww0CfzsUbwxkLvfLI7L15G380v5sovMo"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="below-the-fold">
-        <HomeStatsSection />
-        <HomeFeaturesSection />
-        <HomeBenefitsSection />
-        <HomeTestimonialsSection />
-        <HomeCtaBeforeFaqSection />
-        <HomeFaqSection />
-        <HomeCtaFinalSection />
-      </div>
-    </>
+      {/* Projects Section */}
+      <section
+        className="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-low/50"
+        id="projets"
+      >
+        <div className="max-w-screen-2xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16">
+            <div>
+              <h2 className="text-headline-lg font-headline-lg text-on-surface uppercase mb-4 text-3xl sm:text-4xl">
+                {isFr ? "NOS PROJETS" : "OUR PROJECTS"}
+              </h2>
+              <p className="text-body-md font-body-md text-on-surface-variant max-w-md">
+                {isFr
+                  ? "Une sélection de projets d'architecture et d'intérieurs pensés avec sensibilité et précision."
+                  : "A selection of architectural and interior projects designed with sensitivity and precision."}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-8 mt-8 md:mt-0 border-b border-outline-variant/30 pb-2">
+              <button className="text-label-sm font-label-sm uppercase tracking-widest text-primary border-b border-primary pb-2 -mb-[3px] cursor-pointer">
+                {isFr ? "TOUT" : "ALL"}
+              </button>
+              <button className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                ARCHITECTURE
+              </button>
+              <button className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                {isFr ? "INTÉRIEUR" : "INTERIOR"}
+              </button>
+              <button className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                {isFr ? "DIRECTION ARTISTIQUE" : "ART DIRECTION"}
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+            {/* Project 1 */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+                <img
+                  alt="VILLA N. Architecture"
+                  className="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTbLM5W0Ou2y7U8BI0urW0ophSIn5EEHgnbVcayNQRS_oJVWrZehFjPCTET5zhgLa3AddXUHEdwLB6ZBv1ATdVuxboW6fpVr88tJ4zIVYtAu7-xH8plutX7hh0LfCUw1zB-TU2BHv742nX7rlPzCT3RMA17eaUF1da-fm3ScL6LbUf4QyVVI7jt6KzLc1qG4gQbOFE5WvJeEDJO5jF_Efz5P9JNSy75gwnY3F-219ZjU4BQaOEXaxgyfQ8qhienZZnGoju9CGtSKc"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+              </div>
+              <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-1 text-xl sm:text-2xl">
+                VILLA N.
+              </h3>
+              <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+                Architecture
+              </p>
+            </div>
+            {/* Project 2 */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+                <img
+                  alt="MAISON M. Intérieur"
+                  className="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV-86aI4T6WFLRuhU75MXapYIbUnMkm5Di7zJeEIbsX4M7iFi06J_qcVZlkDlk1LjEGpdLWtW7Dvtf8sZGWFwtByncEPx1YLLD5vMbHjhku9acM-JMymb_6Y7bCaXbMdt3vbwDtRVnwmNHLPQaPsg4alUE_6x2yLFYZAHnox-4abZ6h55hD56bev3SOjGroXDJxCe1_YdEzWsbAKNI06ey4gHNMmVrSawZdtV6A_IqaFg7Ds_k_ynOqSF5C48dNMj4uinDb1nxDNQ"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+              </div>
+              <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-1 text-xl sm:text-2xl">
+                MAISON M.
+              </h3>
+              <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+                {isFr ? "Intérieur" : "Interior"}
+              </p>
+            </div>
+            {/* Project 3 */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+                <img
+                  alt="BUREAU K. Direction Artistique"
+                  className="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0iS1JFWmBnSkdMDL9ZkVmfEagqV_v-wIJKelbOnwk8ptMVVsPhy7ShIq3-OQRcnhpcD_mZnOSn9sKS2KRigIs2A0IEM2DAUvRaqMVDvTqJu0Cpzk0I6eNhrAziijS3XP_SumYok6p0zH8T-c9yXn_p_RJunGfP5ZJ_XSwDjSj7hrhryXKB-q_AeKXxkF2oTvwU9oYF0XP0LXC66qiHIVjKt9BWkTudkfCdqLuaV9UebTMEhD8_YZJnY-7d_a19W_1sFLA8PKOQJE"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+              </div>
+              <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-1 text-xl sm:text-2xl">
+                BUREAU K.
+              </h3>
+              <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+                {isFr ? "Direction Artistique" : "Art Direction"}
+              </p>
+            </div>
+          </div>
+          <div className="mt-16 flex justify-center">
+            <a
+              className="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface border-b border-outline-variant/50 pb-1 hover:text-primary hover:border-primary transition-all"
+              href="#"
+            >
+              {isFr ? "VOIR TOUS LES PROJETS" : "VIEW ALL PROJECTS"}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section
+        className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-screen-2xl mx-auto"
+        id="services"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+          <div className="md:col-span-4">
+            <h2 className="text-headline-lg font-headline-lg text-on-surface uppercase mb-8 text-3xl sm:text-4xl">
+              {isFr ? "NOS SERVICES" : "OUR SERVICES"}
+            </h2>
+            <p className="text-body-md font-body-md text-on-surface-variant max-w-xs">
+              {isFr
+                ? "Une approche pluridisciplinaire pour des projets sur-mesure."
+                : "A multidisciplinary approach for tailor-made projects."}
+            </p>
+          </div>
+          <div className="md:col-span-8 mt-12 md:mt-0">
+            <div className="flex flex-col border-t border-outline-variant/30">
+              {/* Service Item 1 */}
+              <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
+                  architecture
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
+                    Architecture
+                  </h3>
+                  <p className="text-body-md font-body-md text-on-surface-variant max-w-lg">
+                    {isFr
+                      ? "Conception architecturale, études de faisabilité et suivi de chantier."
+                      : "Architectural design, feasibility studies, and construction supervision."}
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                  arrow_forward
+                </span>
+              </div>
+              {/* Service Item 2 */}
+              <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
+                  chair
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
+                    {isFr ? "Design d'intérieur" : "Interior Design"}
+                  </h3>
+                  <p className="text-body-md font-body-md text-on-surface-variant max-w-lg">
+                    {isFr
+                      ? "Aménagement d'espaces intérieurs, choix des matériaux, mobilier sur-mesure."
+                      : "Interior space layout, material choice, custom furniture design."}
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                  arrow_forward
+                </span>
+              </div>
+              {/* Service Item 3 */}
+              <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
+                  design_services
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
+                    {isFr ? "Direction Artistique" : "Art Direction"}
+                  </h3>
+                  <p className="text-body-md font-body-md text-on-surface-variant max-w-lg">
+                    {isFr
+                      ? "Création d'identité visuelle, stylisme d'espace et scénographie."
+                      : "Visual identity creation, space styling, and scenography."}
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                  arrow_forward
+                </span>
+              </div>
+              {/* Service Item 4 */}
+              <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
+                  handshake
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
+                    {isFr ? "Conseil & Accompagnement" : "Consulting & Support"}
+                  </h3>
+                  <p className="text-body-md font-body-md text-on-surface-variant max-w-lg">
+                    {isFr
+                      ? "Expertise technique et créative à chaque étape de votre projet."
+                      : "Technical and creative expertise at every stage of your project."}
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                  arrow_forward
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section
+        className="relative py-section-gap bg-background border-t border-outline-variant/10"
+        id="contact"
+      >
+        <div
+          className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(#4b463d 1px, transparent 1px)",
+            backgroundSize: "30px 30px",
+          }}
+        ></div>
+        <div className="relative z-10 max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-24">
+          {/* Contact Info */}
+          <div>
+            <h2 className="text-headline-lg font-headline-lg text-on-surface uppercase mb-12 text-3xl sm:text-4xl">
+              CONTACT
+            </h2>
+            <p className="text-body-md font-body-md text-on-surface-variant mb-12 max-w-md">
+              {isFr
+                ? "Discutons de votre projet. Nous sommes basés à Casablanca, Maroc, et intervenons sur des projets locaux et internationaux."
+                : "Let's discuss your project. We are based in Casablanca, Morocco, and work on local and international projects."}
+            </p>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center group">
+                <span className="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                  mail
+                </span>
+                <a
+                  className="text-body-md font-body-md text-on-surface hover:text-primary transition-colors"
+                  href="mailto:hello@sizer.ma"
+                >
+                  hello@sizer.ma
+                </a>
+              </div>
+              <div className="flex items-center group">
+                <span className="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                  phone
+                </span>
+                <a
+                  className="text-body-md font-body-md text-on-surface hover:text-primary transition-colors"
+                  href="tel:+212600000000"
+                >
+                  +212 6 00 00 00 00
+                </a>
+              </div>
+              <div className="flex items-start group">
+                <span className="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity mt-1">
+                  location_on
+                </span>
+                <p className="text-body-md font-body-md text-on-surface">
+                  Casablanca, Maroc
+                  <br />
+                  <span className="text-sm text-on-surface-variant">
+                    {isFr ? "Sur rendez-vous uniquement" : "By appointment only"}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Form */}
+          <div className="bg-surface-container-low/40 p-8 md:p-12 backdrop-blur-sm border border-outline-variant/20">
+            <LandingContactForm />
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

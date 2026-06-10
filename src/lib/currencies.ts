@@ -9,4 +9,6 @@ export const CURRENCIES: Record<string, string> = {
   ARS: "ARS - $",
   COP: "COP - $",
   CLP: "CLP - $",
+  MAD: "MAD - DH",
 } as const;
+

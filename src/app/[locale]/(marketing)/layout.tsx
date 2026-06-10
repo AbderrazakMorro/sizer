@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { VetaLogo } from "@/components/veta-logo";
+import { SizerLogo } from "@/components/veta-logo";
 import { MarketingHeader } from "@/components/layouts/marketing-header";
 import { RedirectAuthenticatedToDashboard } from "@/components/redirect-authenticated-to-dashboard";
 import { AnchorToHash } from "@/components/smooth-scroll-link";
@@ -29,126 +29,91 @@ export const metadata: Metadata = {
   },
 };
 
-async function Footer() {
-  const t = await getTranslations("Footer");
+async function Footer({ locale }: { locale: string }) {
+  const isFr = locale === "fr";
 
   return (
-    <footer className="border-border bg-muted/30 relative border-t">
-      <div
-        className="via-primary/40 h-1 w-full bg-gradient-to-r from-transparent to-transparent"
-        aria-hidden
-      />
-      <div className="footer-pattern-container relative container mx-auto max-w-7xl px-4 py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="mb-4 flex items-center gap-2">
-              <VetaLogo height={28} />
-            </Link>
-            <p className="text-muted-foreground text-sm">{t("description")}</p>
-          </div>
-
-          <div>
-            <h3 className="mb-3 font-semibold">{t("product")}</h3>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <AnchorToHash
-                  href="/#features"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("features")}
-                </AnchorToHash>
-              </li>
-              <li>
-                <Link
-                  href="/pricing"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("pricing")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/plan-base"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("basePlan")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/plan-pro"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("proPlan")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/plan-studio"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("studioPlan")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/demo"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("tryDemo")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-3 font-semibold">{t("company")}</h3>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/about"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("about")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("blog")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("contact")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-3 font-semibold">{t("legal")}</h3>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/legal"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("termsAndPrivacy")}
-                </Link>
-              </li>
-            </ul>
-          </div>
+    <footer className="bg-surface-container-lowest w-full mt-section-gap border-t border-outline-variant/20">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-screen-2xl mx-auto">
+        <div className="md:col-span-1 mb-8 md:mb-0 flex flex-col gap-4">
+          <SizerLogo height={32} className="justify-start" />
+          <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest text-[10px]">
+            {isFr ? "Architecture • Intérieur • Artisans" : "Architecture • Interior • Artisans"}
+          </p>
+        </div>
+        
+        <div className="md:col-span-1 flex flex-col gap-4">
+          <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-2 opacity-50">
+            {isFr ? "LIENS RAPIDES" : "QUICK LINKS"}
+          </p>
+          <AnchorToHash
+            href="/#projets"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            {isFr ? "PROJETS" : "PROJECTS"}
+          </AnchorToHash>
+          <AnchorToHash
+            href="/#apropos"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            {isFr ? "À PROPOS" : "ABOUT"}
+          </AnchorToHash>
+          <AnchorToHash
+            href="/#services"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            {isFr ? "SERVICES" : "SERVICES"}
+          </AnchorToHash>
+          <AnchorToHash
+            href="/#contact"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            {isFr ? "CONTACT" : "CONTACT"}
+          </AnchorToHash>
         </div>
 
-        <div className="border-border text-muted-foreground mt-12 border-t pt-8 text-center text-sm">
-          <p>
-            &copy; {new Date().getFullYear()} Veta. {t("copyright")}
+        <div className="md:col-span-1 flex flex-col gap-4">
+          <p className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-2 opacity-50">
+            {isFr ? "SUIVEZ-NOUS" : "FOLLOW US"}
+          </p>
+          <a
+            href="#"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            INSTAGRAM
+          </a>
+          <a
+            href="#"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            LINKEDIN
+          </a>
+          <a
+            href="#"
+            className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300"
+          >
+            BEHANCE
+          </a>
+        </div>
+
+        <div className="md:col-span-1 flex flex-col justify-end items-start md:items-end mt-12 md:mt-0">
+          <div className="flex gap-4 mb-4">
+            <Link
+              href="/legal"
+              className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 text-[10px]"
+            >
+              {isFr ? "MENTIONS LÉGALES" : "LEGAL NOTICE"}
+            </Link>
+            <span className="text-on-surface-variant text-[10px]">|</span>
+            <Link
+              href="/legal"
+              className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 text-[10px]"
+            >
+              {isFr ? "POLITIQUE DE CONFIDENTIALITÉ" : "PRIVACY POLICY"}
+            </Link>
+          </div>
+          <p className="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant text-[10px] opacity-60">
+            {isFr ? "© 2024 SIZER. Tous droits réservés." : "© 2024 SIZER. All rights reserved."}
           </p>
         </div>
       </div>
@@ -180,7 +145,7 @@ export default async function MarketingLayout({
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer />
+      <Footer locale={locale} />
     </div>
   );
 }

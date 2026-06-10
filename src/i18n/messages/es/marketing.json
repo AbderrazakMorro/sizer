@@ -176,6 +176,18 @@
     "creatorLinkedinTitle": "Perfil de Marco Gonzalo Gómez Pérez, creador de Veta, en Linkedin",
     "creatorBio": "Desarrollador full-stack con experiencia en productos digitales, APIs y aplicaciones web. Ha trabajado en equipos de producto y tecnología en distintos sectores, desde startups hasta empresas consolidadas. Cuenta con historia emprendedora en Venezuela y en España, con reconocimientos de premios de emprendimiento y excelencia en ambos países."
   },
+  "PortfolioSection": {
+    "sectionTitle": "Nuestros Proyectos",
+    "sectionTitleHighlight": "Inspiración",
+    "sectionSubtitle": "Explora nuestros proyectos de diseño de interiores y arquitectura terminados para encontrar inspiración.",
+    "errorFetching": "Error al cargar los proyectos. Por favor, inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "noCompletedProjects": "No hay proyectos completados para mostrar aún.",
+    "noSpaceAvailable": "Este proyecto no tiene espacio disponible para mostrar imágenes.",
+    "images": "imágenes",
+    "space": "Espacio",
+    "status": "Estado"
+  },
   "Contact": {
     "metaTitle": "Contacto. Respuesta en menos de 24h",
     "metaDescription": "Ponte en contacto con el equipo de Veta. Resolvemos dudas sobre la plataforma de gestión de proyectos de diseño interior. Respuesta en menos de 24 horas.",

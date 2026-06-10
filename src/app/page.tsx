@@ -7,7 +7,7 @@ import MarketingLayout from "./[locale]/(marketing)/layout";
 export default async function RootPage() {
   const locale = routing.defaultLocale;
 
-  // Root path is used for the default locale ("/" -> ES). We still need to
+  // Root path is used for the default locale ("/" -> FR). We still need to
   // provide NextIntl context so client components (e.g. sections) work.
   setRequestLocale(locale);
   const messages = await getMessages();

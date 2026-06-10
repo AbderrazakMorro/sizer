@@ -186,7 +186,7 @@ describe("POST /api/auth/demo-request", () => {
       headers: { origin: "https://app.test" },
       body: JSON.stringify({
         email: "test&visitor@example.com",
-        lang: "es",
+        lang: "fr",
       }),
     });
 

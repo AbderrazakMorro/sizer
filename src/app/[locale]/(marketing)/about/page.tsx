@@ -16,16 +16,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "About" });
-  const canonical = locale === "es" ? "/sobre-veta" : "/en/about-veta";
+  const canonical = locale === "fr" ? "/a-propos" : "/en/about-veta";
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: {
       canonical,
       languages: {
-        es: "/sobre-veta",
+        fr: "/a-propos",
         en: "/en/about-veta",
-        "x-default": "/sobre-veta",
+        "x-default": "/a-propos",
       },
     },
     openGraph: {

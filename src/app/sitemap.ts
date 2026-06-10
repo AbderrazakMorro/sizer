@@ -11,10 +11,10 @@ import { getSiteUrl } from "@/lib/site-url";
 const publicRoutes = [
   { path: "/", priority: 1, changeFrequency: "weekly" as const },
   { path: "/en", priority: 1, changeFrequency: "weekly" as const },
-  { path: "/precios", priority: 0.9, changeFrequency: "weekly" as const },
+  { path: "/tarifs", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/en/pricing", priority: 0.9, changeFrequency: "weekly" as const },
   {
-    path: "/sobre-veta",
+    path: "/a-propos",
     priority: 0.8,
     changeFrequency: "monthly" as const,
   },
@@ -23,14 +23,14 @@ const publicRoutes = [
     priority: 0.8,
     changeFrequency: "monthly" as const,
   },
-  { path: "/contacto", priority: 0.8, changeFrequency: "monthly" as const },
+  { path: "/contact", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/en/contact", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/demo", priority: 0.8, changeFrequency: "monthly" as const },
   { path: "/en/demo", priority: 0.8, changeFrequency: "monthly" as const },
-  { path: "/legal", priority: 0.5, changeFrequency: "yearly" as const },
+  { path: "/mentions-legales", priority: 0.5, changeFrequency: "yearly" as const },
   { path: "/en/legal", priority: 0.5, changeFrequency: "yearly" as const },
   {
-    path: "/plan-base-primer-proyecto-interiorismo",
+    path: "/plan-de-base-premier-projet",
     priority: 0.7,
     changeFrequency: "monthly" as const,
   },
@@ -40,7 +40,7 @@ const publicRoutes = [
     changeFrequency: "monthly" as const,
   },
   {
-    path: "/plan-pro-independientes-diseno-interior",
+    path: "/plan-pro-independant",
     priority: 0.7,
     changeFrequency: "monthly" as const,
   },
@@ -50,7 +50,7 @@ const publicRoutes = [
     changeFrequency: "monthly" as const,
   },
   {
-    path: "/plan-studio-empresas-arquitectura-diseno-interior",
+    path: "/plan-studio-entreprise",
     priority: 0.7,
     changeFrequency: "monthly" as const,
   },

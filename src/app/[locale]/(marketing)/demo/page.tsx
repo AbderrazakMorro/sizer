@@ -16,14 +16,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Demo" });
-  const canonical = locale === "es" ? "/demo" : "/en/demo";
+  const canonical = locale === "fr" ? "/demo" : "/en/demo";
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: {
       canonical,
       languages: {
-        es: "/demo",
+        fr: "/demo",
         en: "/en/demo",
         "x-default": "/demo",
       },

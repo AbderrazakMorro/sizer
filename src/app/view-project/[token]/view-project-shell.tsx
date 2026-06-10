@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { VetaLogo } from "@/components/veta-logo";
+import { SizerLogo } from "@/components/veta-logo";
 import { ThemeToggleSimple } from "@/components/theme-toggle-simple";
 
 export function ViewProjectShell({
@@ -26,7 +26,7 @@ export function ViewProjectShell({
           className="flex items-center gap-2"
           aria-label={t("homeAria")}
         >
-          <VetaLogo height={28} />
+          <SizerLogo height={28} />
         </Link>
         <ThemeToggleSimple />
       </header>

@@ -1,0 +1,406 @@
+<!DOCTYPE html><html class="dark" lang="fr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SIZER - Architecture &amp; Intérieur</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;family=Manrope:wght@400..700&amp;family=Syne:wght@400..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#313030",
+                        "on-secondary-container": "#b7b5b4",
+                        "tertiary-fixed-dim": "#c8c6c6",
+                        "primary": "#e5d4b4",
+                        "tertiary-container": "#bbb9b9",
+                        "surface-container-low": "#1b1b1b",
+                        "tertiary": "#d7d5d4",
+                        "surface-variant": "#353535",
+                        "inverse-surface": "#e2e2e2",
+                        "primary-fixed": "#f2e1c1",
+                        "on-error": "#690005",
+                        "background": "#131313",
+                        "on-tertiary": "#303030",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "inverse-on-surface": "#303030",
+                        "on-surface-variant": "#cec5b9",
+                        "surface-tint": "#d5c5a6",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "outline-variant": "#4b463d",
+                        "on-tertiary-container": "#4a4a49",
+                        "surface-container": "#1f1f1f",
+                        "primary-fixed-dim": "#d5c5a6",
+                        "on-surface": "#e2e2e2",
+                        "surface-dim": "#131313",
+                        "outline": "#979085",
+                        "secondary": "#c8c6c5",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#51452e",
+                        "surface": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#e4e2e1",
+                        "on-primary-fixed": "#231a07",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-container": "#544931",
+                        "on-background": "#e2e2e2",
+                        "inverse-primary": "#695d44",
+                        "secondary-container": "#474746",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "surface-container-highest": "#353535",
+                        "surface-bright": "#393939",
+                        "on-primary": "#392f1a",
+                        "secondary-fixed": "#e5e2e1",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "error-container": "#93000a",
+                        "primary-container": "#c8b89a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "120px",
+                        "element-gap": "16px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "margin-tablet": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Syne"],
+                        "body-md": ["Manrope"],
+                        "display-lg": ["Syne"],
+                        "headline-md": ["Syne"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Syne"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e; /* surface-container-lowest for pure dark aesthetic */
+            color: #e2e2e2; /* on-surface */
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #353535; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b463d; }
+
+        /* Minimalist Input Styles */
+        input[type="text"], input[type="email"], textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #4b463d; /* outline-variant */
+            color: #e2e2e2;
+            padding: 12px 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: #e5d4b4; /* primary */
+            box-shadow: none;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #b7b5b4;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Button Hover Effects */
+        .btn-primary {
+            border: 1px solid #e5d4b4;
+            color: #e5d4b4;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #e5d4b4;
+            color: #131313;
+        }
+
+        .img-zoom-hover overflow-hidden img {
+            transition: transform 0.7s ease;
+        }
+        .img-zoom-hover:hover img {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-background">
+<!-- TopNavBar Component -->
+<nav class="backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant/30 bg-background/80"><div class="flex justify-between items-center w-full px-margin-desktop py-6 max-w-screen-2xl mx-auto">
+  <div class="text-headline-md font-headline-md tracking-tighter text-on-surface">SIZER</div>
+  <div class="hidden md:flex items-center space-x-8">
+    <a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="#projets">PROJETS</a>
+    <a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="#apropos">À PROPOS</a>
+    <a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="#services">SERVICES</a>
+    <a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="#contact">CONTACT</a>
+    <div class="w-[1px] h-4 bg-outline-variant/30 mx-2"></div>
+    <a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="#login">CONNEXION</a>
+    <a class="border border-outline-variant/30 px-6 py-2 text-label-sm font-label-sm uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-background transition-all duration-300" href="#contact">DEMANDER UN SERVICE</a>
+    <button class="text-on-surface-variant hover:text-primary transition-colors duration-300 flex items-center ml-4">
+      <span class="material-symbols-outlined text-[20px]">language</span>
+    </button>
+  </div>
+</div></nav>
+<main>
+<!-- Hero Section -->
+<section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Hero Architecture Background" class="w-full h-full object-cover object-center opacity-40" data-alt="A sweeping, wide-angle architectural photograph of a highly modern, brutalist-inspired concrete and glass villa at dusk. The lighting is moody and dramatic, with warm, inviting interior lights glowing intensely against the deep, cool shadows of the evening sky. The setting exudes luxury, tranquility, and precise engineering. The visual style is high-contrast minimalist, aligning perfectly with an 'Architectural Noir' aesthetic, utilizing pure black shadows and warm bronze-toned light bleeds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKBQ1BSkEo5lSXLx84r7260DRbqRu5zBCdJZjo_cDIj-x9VPXyniURMjCJY377Sy5-5mqm8Y3Htfcr5b5Jc8qcZV5zNYTetdxx0fAi-2LemWwBSlm3xhvT0g0SaeFvaqWGVa9IW5Of-d929nMjV2x7gaIkOrcYT75lWa755CRlFxLc8J8b4Hk8JdrE5QfypJHp9aBVm8GBUOJL_hOX8trFouBZD2K_kjgUMy_9dTCAjR62C-D-PEaMYkLEgR1cnXOmlsOgGttirmA">
+<div class="absolute inset-0 bg-gradient-to-b from-background/10 via-background/50 to-background"></div>
+</div>
+<div class="relative z-10 text-center px-margin-mobile md:px-margin-desktop max-w-screen-xl mx-auto flex flex-col items-center">
+<h1 class="text-display-lg font-display-lg text-on-surface mb-6 uppercase tracking-tight">CONCEVOIR DES ESPACES<br>QUI INSPIRENT</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant mb-10 uppercase tracking-widest text-sm">Architecture | Intérieur | Artisans</p>
+<a class="btn-primary px-8 py-4 text-label-sm font-label-sm uppercase tracking-[0.2em]" href="#projets">DÉCOUVRIR NOS PROJETS</a>
+</div>
+<div class="absolute bottom-12 left-margin-desktop hidden md:block">
+<div class="flex flex-col gap-4 text-label-sm font-label-sm text-on-surface-variant">
+<span class="">01</span>
+<div class="w-[1px] h-12 bg-outline-variant/50 mx-auto"></div>
+<span class="">05</span>
+</div>
+</div>
+</section>
+<!-- About Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-screen-2xl mx-auto" id="apropos">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<div class="md:col-span-5 md:col-start-1 pr-0 md:pr-12">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-10 uppercase">À PROPOS DE SIZER</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-8 leading-relaxed">
+                        Sizer est un cabinet de conseil créatif pluridisciplinaire basé à Casablanca, Maroc. Nous accompagnons nos clients à travers des projets de concepts, de design d'intérieur et de direction artistique, en apportant une vision globale et cohérente.
+                    </p>
+<p class="text-body-md font-body-md text-on-surface-variant mb-12 leading-relaxed italic text-primary/80 font-serif">
+                        "Créer avec sens, construire pour durer."
+                    </p>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-outline-variant/30 pt-8">
+<div>
+<div class="text-headline-md font-headline-md text-primary mb-2">10+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">Années d'expérience</div>
+</div>
+<div>
+<div class="text-headline-md font-headline-md text-primary mb-2">120+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">Projets réalisés</div>
+</div>
+<div>
+<div class="text-headline-md font-headline-md text-primary mb-2">50+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">Artisans partenaires</div>
+</div>
+<div>
+<div class="text-headline-md font-headline-md text-primary mb-2">1</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase text-[10px]">Vision globale</div>
+</div>
+</div>
+</div>
+<div class="md:col-span-6 md:col-start-7 mt-12 md:mt-0">
+<div class="relative h-[800px] w-full overflow-hidden">
+<img alt="Interior Architecture Concept" class="w-full h-full object-cover grayscale-[0.3] contrast-125" data-alt="A striking vertical shot of a minimalist interior corridor bathed in dramatic natural light streaming through unseen high windows. The walls are a textured, raw concrete, contrasting with a perfectly smooth, dark polished stone floor. The lighting creates stark geometric shadows, embodying an architectural noir aesthetic. The overall mood is silent, contemplative, and intensely sophisticated, relying on tonal layering of deep grays, blacks, and subtle warm light reflections." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCedIT2q4flgSHeODWITGJXfwryIR5d74lyvRvckJr1k4vk2q_yxF0O_5nRcgGp2piVRjHPtWGW_rOxkRtc1_-4tVNq0DYwbEdgpnGgU8-PyhqjVaBVX_E3U7z6Z1Db--shpvGN2SOmpoWdQ37eVj_fN7SjkkRfKOSYRQ4JapOcWRFT0XbMs9MzO3-LQv5bevFfYN79Ur5oxsbMs-zEkDrIPAO6ku3mvHeBE8Xtr754jtXww0CfzsUbwxkLvfLI7L15G380v5sovMo">
+</div>
+</div>
+</div>
+</section>
+<!-- Projects Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-low/50" id="projets">
+<div class="max-w-screen-2xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface uppercase mb-4">NOS PROJETS</h2>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-md">Une sélection de projets d'architecture et d'intérieurs pensés avec sensibilité et précision.</p>
+</div>
+<div class="flex flex-wrap gap-8 mt-8 md:mt-0 border-b border-outline-variant/30 pb-2">
+<button class="text-label-sm font-label-sm uppercase tracking-widest text-primary border-b border-primary pb-2 -mb-[3px]">TOUT</button>
+<button class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">ARCHITECTURE</button>
+<button class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">INTÉRIEUR</button>
+<button class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">DIRECTION ARTISTIQUE</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Project 1 -->
+<div class="group cursor-pointer">
+<div class="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+<img alt="VILLA N. Architecture" class="w-full h-full object-cover" data-alt="Exterior view of a luxury modern villa at night. The structure features sharp, clean lines and large glass facades that glow warmly from within against the pitch-black exterior environment. The architectural style is highly contemporary, emphasizing negative space and structural precision. The color palette is strictly high-contrast noir, with pure deep blacks punctuated by elegant, golden-bronze interior lighting that serves as the primary focal point." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTbLM5W0Ou2y7U8BI0urW0ophSIn5EEHgnbVcayNQRS_oJVWrZehFjPCTET5zhgLa3AddXUHEdwLB6ZBv1ATdVuxboW6fpVr88tJ4zIVYtAu7-xH8plutX7hh0LfCUw1zB-TU2BHv742nX7rlPzCT3RMA17eaUF1da-fm3ScL6LbUf4QyVVI7jt6KzLc1qG4gQbOFE5WvJeEDJO5jF_Efz5P9JNSy75gwnY3F-219ZjU4BQaOEXaxgyfQ8qhienZZnGoju9CGtSKc">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-1">VILLA N.</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Architecture</p>
+</div>
+<!-- Project 2 -->
+<div class="group cursor-pointer">
+<div class="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+<img alt="MAISON M. Intérieur" class="w-full h-full object-cover" data-alt="An expansive, meticulously curated luxury living room interior. The design is corporate modern meets high-end residential. Dark, richly textured walls surround highly structured, low-profile furniture in dark leathers and warm woods. Lighting is completely indirect, creating a moody, atmospheric depth through tonal layering of dark greys and browns. A massive window looks out into complete darkness, emphasizing the sanctuary-like feel of the interior." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV-86aI4T6WFLRuhU75MXapYIbUnMkm5Di7zJeEIbsX4M7iFi06J_qcVZlkDlk1LjEGpdLWtW7Dvtf8sZGWFwtByncEPx1YLLD5vMbHjhku9acM-JMymb_6Y7bCaXbMdt3vbwDtRVnwmNHLPQaPsg4alUE_6x2yLFYZAHnox-4abZ6h55hD56bev3SOjGroXDJxCe1_YdEzWsbAKNI06ey4gHNMmVrSawZdtV6A_IqaFg7Ds_k_ynOqSF5C48dNMj4uinDb1nxDNQ">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-1">MAISON M.</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Intérieur</p>
+</div>
+<!-- Project 3 -->
+<div class="group cursor-pointer">
+<div class="relative h-[400px] mb-6 overflow-hidden img-zoom-hover">
+<img alt="BUREAU K. Direction Artistique" class="w-full h-full object-cover" data-alt="A sophisticated, brutalist corporate office interior. The scene features exposed concrete pillars and a sweeping dark wood reception desk. The aesthetic is extremely minimalist and low density, allowing the vast negative space to dominate. Thin, architectural light strips provide illumination, casting sharp, deliberate shadows. The atmosphere is authoritative, timeless, and completely adheres to a dark, high-contrast architectural noir design language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0iS1JFWmBnSkdMDL9ZkVmfEagqV_v-wIJKelbOnwk8ptMVVsPhy7ShIq3-OQRcnhpcD_mZnOSn9sKS2KRigIs2A0IEM2DAUvRaqMVDvTqJu0Cpzk0I6eNhrAziijS3XP_SumYok6p0zH8T-c9yXn_p_RJunGfP5ZJ_XSwDjSj7hrhryXKB-q_AeKXxkF2oTvwU9oYF0XP0LXC66qiHIVjKt9BWkTudkfCdqLuaV9UebTMEhD8_YZJnY-7d_a19W_1sFLA8PKOQJE">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-1">BUREAU K.</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Direction Artistique</p>
+</div>
+</div>
+<div class="mt-16 flex justify-center">
+<a class="text-label-sm font-label-sm uppercase tracking-[0.2em] text-on-surface border-b border-outline-variant/50 pb-1 hover:text-primary hover:border-primary transition-all" href="#">VOIR TOUS LES PROJETS</a>
+</div>
+</div>
+</section>
+<!-- Services Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-screen-2xl mx-auto" id="services">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-4">
+<h2 class="text-headline-lg font-headline-lg text-on-surface uppercase mb-8">NOS SERVICES</h2>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-xs">Une approche pluridisciplinaire pour des projets sur-mesure.</p>
+</div>
+<div class="md:col-span-8 mt-12 md:mt-0">
+<div class="flex flex-col border-t border-outline-variant/30">
+<!-- Service Item 1 -->
+<div class="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+<span class="material-symbols-outlined text-primary text-3xl mr-8 font-light">architecture</span>
+<div class="flex-1">
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-2">Architecture</h3>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-lg">Conception architecturale, études de faisabilité et suivi de chantier.</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">arrow_forward</span>
+</div>
+<!-- Service Item 2 -->
+<div class="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+<span class="material-symbols-outlined text-primary text-3xl mr-8 font-light">chair</span>
+<div class="flex-1">
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-2">Design d'intérieur</h3>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-lg">Aménagement d'espaces intérieurs, choix des matériaux, mobilier sur-mesure.</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">arrow_forward</span>
+</div>
+<!-- Service Item 3 -->
+<div class="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+<span class="material-symbols-outlined text-primary text-3xl mr-8 font-light">design_services</span>
+<div class="flex-1">
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-2">Direction Artistique</h3>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-lg">Création d'identité visuelle, stylisme d'espace et scénographie.</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">arrow_forward</span>
+</div>
+<!-- Service Item 4 -->
+<div class="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
+<span class="material-symbols-outlined text-primary text-3xl mr-8 font-light">handshake</span>
+<div class="flex-1">
+<h3 class="text-headline-md font-headline-md text-on-surface uppercase mb-2">Conseil &amp; Accompagnement</h3>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-lg">Expertise technique et créative à chaque étape de votre projet.</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="relative py-section-gap bg-background border-t border-outline-variant/10" id="contact">
+<!-- Dark map background simulation via CSS pattern to avoid heavy image load if not strictly required by prompt, but prompt asks for map image. -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#4b463d 1px, transparent 1px); background-size: 30px 30px;"></div>
+<div class="relative z-10 max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-24">
+<!-- Contact Info -->
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface uppercase mb-12">CONTACT</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-12 max-w-md">
+                        Discutons de votre projet. Nous sommes basés à Casablanca, Maroc, et intervenons sur des projets locaux et internationaux.
+                    </p>
+<div class="flex flex-col gap-6">
+<div class="flex items-center group">
+<span class="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity">mail</span>
+<a class="text-body-md font-body-md text-on-surface hover:text-primary transition-colors" href="mailto:hello@sizer.ma">hello@sizer.ma</a>
+</div>
+<div class="flex items-center group">
+<span class="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity">phone</span>
+<a class="text-body-md font-body-md text-on-surface hover:text-primary transition-colors" href="tel:+212600000000">+212 6 00 00 00 00</a>
+</div>
+<div class="flex items-start group">
+<span class="material-symbols-outlined text-primary mr-4 opacity-70 group-hover:opacity-100 transition-opacity mt-1">location_on</span>
+<p class="text-body-md font-body-md text-on-surface">Casablanca, Maroc<br><span class="text-sm text-on-surface-variant">Sur rendez-vous uniquement</span></p>
+</div>
+</div>
+</div>
+<!-- Form -->
+<div class="bg-surface-container-low/40 p-8 md:p-12 backdrop-blur-sm border border-outline-variant/20">
+<form class="flex flex-col gap-8">
+<div>
+<input id="nom" placeholder="NOM" required="" type="text">
+</div>
+<div>
+<input id="email" placeholder="EMAIL" required="" type="email">
+</div>
+<div>
+<textarea id="message" placeholder="MESSAGE" required="" rows="4"></textarea>
+</div>
+<div class="mt-4">
+<button class="btn-primary w-full md:w-auto px-12 py-4 text-label-sm font-label-sm uppercase tracking-[0.2em] bg-transparent" type="submit">ENVOYER</button>
+</div>
+</form>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-surface-container-lowest full-width mt-section-gap border-t border-outline-variant/20">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-screen-2xl mx-auto">
+<div class="md:col-span-1 mb-8 md:mb-0">
+<div class="text-headline-md font-headline-md text-on-surface mb-4">SIZER</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest text-[10px]">Architecture • Intérieur • Artisans</p>
+</div>
+<div class="md:col-span-1 flex flex-col gap-4">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-2 opacity-50">LIENS RAPIDES</p>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#projets">PROJETS</a>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#apropos">À PROPOS</a>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#services">SERVICES</a>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#contact">CONTACT</a>
+</div>
+<div class="md:col-span-1 flex flex-col gap-4">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-2 opacity-50">SUIVEZ-NOUS</p>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#">INSTAGRAM</a>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#">LINKEDIN</a>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 w-fit relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-primary hover:after:w-full after:transition-all after:duration-300" href="#">BEHANCE</a>
+</div>
+<div class="md:col-span-1 flex flex-col justify-end items-start md:items-end mt-12 md:mt-0">
+<div class="flex gap-4 mb-4">
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 text-[10px]" href="#">MENTIONS LÉGALES</a>
+<span class="text-on-surface-variant text-[10px]">|</span>
+<a class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all duration-300 text-[10px]" href="#">POLITIQUE DE CONFIDENTIALITÉ</a>
+</div>
+<p class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant text-[10px] opacity-60">© 2024 SIZER. Tous droits réservés.</p>
+</div>
+</div>
+</footer>
+
+
+</body></html>

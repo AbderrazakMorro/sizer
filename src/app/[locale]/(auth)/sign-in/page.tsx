@@ -41,9 +41,7 @@ export default async function SignInPage({
 
   return (
     <Suspense fallback={<SignInFormFallback />}>
-      <SignInForm
-        turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null}
-      />
+      <SignInForm />
     </Suspense>
   );
 }

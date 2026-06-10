@@ -40,7 +40,6 @@ export default async function SignUpPage({
       redirectTo={searchParamsData.redirect ?? null}
       planParam={searchParamsData.plan ?? null}
       billingParam={searchParamsData.billing ?? null}
-      turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null}
     />
   );
 }

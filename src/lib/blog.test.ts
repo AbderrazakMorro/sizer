@@ -15,14 +15,14 @@ async function createTempBlogContent() {
   const root = await mkdtemp(path.join(tmpdir(), "veta-blog-"));
   tempDirectories.push(root);
 
-  const esDir = path.join(root, "es");
+  const frDir = path.join(root, "fr");
   const enDir = path.join(root, "en");
 
-  await mkdir(esDir, { recursive: true });
+  await mkdir(frDir, { recursive: true });
   await mkdir(enDir, { recursive: true });
 
   await writeFile(
-    path.join(esDir, "tendencias-2026.md"),
+    path.join(frDir, "tendances-2026.md"),
     `---
 entryId: tendencias-2026
 title: Tendencias de interiorismo 2026
@@ -37,9 +37,9 @@ Contenido en **español**.
   );
 
   await writeFile(
-    path.join(esDir, "iluminacion.md"),
+    path.join(frDir, "eclairage.md"),
     `---
-entryId: iluminacion
+entryId: eclairage
 title: Iluminación para vivienda
 date: 2025-12-12
 excerpt: Cómo iluminar por capas.
@@ -83,18 +83,18 @@ describe("blog content module", () => {
     const posts = await getBlogPostSummaries("es", { blogRoot });
 
     expect(posts).toHaveLength(2);
-    expect(posts[0]?.slug).toBe("tendencias-2026");
-    expect(posts[1]?.slug).toBe("iluminacion");
+    expect(posts[0]?.slug).toBe("tendances-2026");
+    expect(posts[1]?.slug).toBe("eclairage");
   });
 
   it("returns a post in html and resolves translated slug", async () => {
     const blogRoot = await createTempBlogContent();
 
-    const post = await getBlogPostBySlug("es", "tendencias-2026", { blogRoot });
+    const post = await getBlogPostBySlug("fr", "tendances-2026", { blogRoot });
 
     expect(post).not.toBeNull();
     expect(post?.contentHtml).toContain(
-      "<p>Contenido en <strong>español</strong>.</p>"
+      "<p>Contenu en <strong>français</strong>.</p>"
     );
     expect(post?.translations.en).toBe("interior-trends-2026");
   });
@@ -106,8 +106,8 @@ describe("blog content module", () => {
 
     expect(params).toEqual(
       expect.arrayContaining([
-        { locale: "es", slug: "tendencias-2026" },
-        { locale: "es", slug: "iluminacion" },
+        { locale: "fr", slug: "tendances-2026" },
+        { locale: "fr", slug: "eclairage" },
         { locale: "en", slug: "interior-trends-2026" },
       ])
     );
@@ -116,30 +116,30 @@ describe("blog content module", () => {
   it("resolves locale switch from ES post to EN translated path", async () => {
     const blogRoot = await createTempBlogContent();
     const target = await resolveBlogLocaleSwitchPath(
-      "es",
+      "fr",
       "en",
-      "/blog/tendencias-2026",
+      "/blog/tendances-2026",
       { blogRoot }
     );
     expect(target).toBe("/en/blog/interior-trends-2026");
   });
 
-  it("resolves locale switch from EN post to ES translated path", async () => {
+  it("resolves locale switch from EN post to FR translated path", async () => {
     const blogRoot = await createTempBlogContent();
     const target = await resolveBlogLocaleSwitchPath(
       "en",
-      "es",
+      "fr",
       "/blog/interior-trends-2026",
       { blogRoot }
     );
-    expect(target).toBe("/blog/tendencias-2026");
+    expect(target).toBe("/blog/tendances-2026");
   });
 
   it("resolves blog index for each locale", async () => {
-    expect(await resolveBlogLocaleSwitchPath("es", "en", "/blog")).toBe(
+    expect(await resolveBlogLocaleSwitchPath("fr", "en", "/blog")).toBe(
       "/en/blog"
     );
-    expect(await resolveBlogLocaleSwitchPath("en", "es", "/blog")).toBe(
+    expect(await resolveBlogLocaleSwitchPath("en", "fr", "/blog")).toBe(
       "/blog"
     );
   });

@@ -5,7 +5,7 @@ import {
 } from "@/lib/resolve-locale-from-accept-language";
 
 /**
- * Resolves en | es for transactional / auth-related emails.
+ * Resolves en | fr for transactional / auth-related emails.
  * Prefer an explicit value from the client; otherwise Accept-Language.
  */
 export function resolveEmailLocale(

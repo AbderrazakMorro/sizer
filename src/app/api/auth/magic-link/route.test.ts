@@ -115,7 +115,7 @@ describe("POST /api/auth/magic-link", () => {
       email: "test@example.com",
       options: {
         emailRedirectTo: "http://localhost/callback",
-        data: { lang: "es" },
+        data: { lang: "fr" },
       },
     });
   });
@@ -146,7 +146,7 @@ describe("POST /api/auth/magic-link", () => {
         data: {
           full_name: "Test User",
           signup_plan: "PRO",
-          lang: "es",
+          lang: "fr",
         },
       },
     });
@@ -306,7 +306,7 @@ describe("POST /api/auth/magic-link", () => {
       email: "test@example.com",
       options: {
         emailRedirectTo: "http://localhost/callback",
-        data: { lang: "es" },
+        data: { lang: "fr" },
       },
     });
 
@@ -372,7 +372,7 @@ describe("POST /api/auth/magic-link", () => {
       email: "test@example.com",
       options: {
         emailRedirectTo: "http://localhost/callback",
-        data: { lang: "es" },
+        data: { lang: "fr" },
       },
     });
   });
@@ -411,7 +411,7 @@ describe("POST /api/auth/magic-link", () => {
       options: {
         emailRedirectTo: "http://localhost/callback",
         data: {
-          lang: "es",
+          lang: "fr",
           signup_spam_review: true,
           signup_spam_score: expect.any(Number),
         },

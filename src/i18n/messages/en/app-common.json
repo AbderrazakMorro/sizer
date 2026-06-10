@@ -22,7 +22,12 @@
     "reportBug": "Report a bug",
     "signOut": "Sign out",
     "accountMenuAria": "Account and settings",
-    "more": "More"
+    "more": "More",
+    "clientDashboard": "My Portal",
+    "requestServices": "Request service",
+    "users": "Users",
+    "hr": "HR Management",
+    "site": "Site Management"
   },
   "AppLayout": {
     "skipToContent": "Skip to content",

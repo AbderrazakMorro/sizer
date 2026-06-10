@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { AuthChangeEvent, User, Session } from "@supabase/supabase-js";
 import { getSupabaseClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import type { EffectivePlan } from "@/types";
+import type { EffectivePlan, UserRole } from "@/types";
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +15,8 @@ interface AuthContextType {
   /** Effective plan (from latest valid assignment or BASE). Loaded after user is set. */
   effectivePlan: EffectivePlan | null;
   planLoading: boolean;
+  roles: UserRole[];
+  rolesLoading: boolean;
   signOut: () => Promise<void>;
   /** Refetch effective plan (e.g. after assigning a new plan). */
   refetchEffectivePlan: () => Promise<void>;
@@ -27,6 +29,8 @@ const AuthContext = createContext<AuthContextType>({
   profileFullName: null,
   effectivePlan: null,
   planLoading: true,
+  roles: [],
+  rolesLoading: true,
   signOut: async () => {},
   refetchEffectivePlan: async () => {},
 });
@@ -42,6 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     null
   );
   const [planLoading, setPlanLoading] = useState(true);
+  const [roles, setRoles] = useState<UserRole[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const router = useRouter();
   const supabase = getSupabaseClient();
 
@@ -77,10 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfileFullName(null);
       setEffectivePlan(null);
       setPlanLoading(false);
+      setRoles([]);
+      setRolesLoading(false);
       return;
     }
     let cancelled = false;
     setPlanLoading(true);
+    setRolesLoading(true);
+
     void Promise.resolve(
       supabase.from("profiles").select("full_name").eq("id", user.id).single()
     )
@@ -94,19 +104,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         if (!cancelled) setProfileFullName(null);
       });
+
     void Promise.resolve(
-      supabase.from("profiles").select("full_name").eq("id", user.id).single()
+      supabase.from("user_roles").select("role").eq("user_id", user.id)
     )
       .then(({ data }) => {
-        if (!cancelled && data?.full_name != null) {
-          setProfileFullName(data.full_name.trim() || null);
+        if (!cancelled && data) {
+          setRoles(data.map((r: any) => r.role as UserRole));
         } else if (!cancelled) {
-          setProfileFullName(null);
+          setRoles([]);
         }
       })
       .catch(() => {
-        if (!cancelled) setProfileFullName(null);
+        if (!cancelled) setRoles([]);
+      })
+      .then(() => {
+        if (!cancelled) setRolesLoading(false);
       });
+
     void Promise.resolve(
       supabase.rpc("get_effective_plan", { p_user_id: user.id })
     )
@@ -174,10 +189,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         session,
-        loading,
+        loading: loading || rolesLoading,
         profileFullName,
         effectivePlan,
         planLoading,
+        roles,
+        rolesLoading,
         signOut,
         refetchEffectivePlan,
       }}
@@ -186,3 +203,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+

@@ -1,0 +1,17 @@
+{
+  "description": "Gestion de projets de design d’intérieur, simple et efficace.",
+  "product": "Produit",
+  "features": "Fonctionnalités",
+  "pricing": "Tarifs",
+  "basePlan": "Offre Base",
+  "proPlan": "Offre Pro",
+  "studioPlan": "Offre Studio",
+  "tryDemo": "Essayer une démo",
+  "company": "Entreprise",
+  "about": "À propos",
+  "blog": "Blog",
+  "contact": "Contact",
+  "legal": "Légal",
+  "termsAndPrivacy": "Conditions & Confidentialité",
+  "copyright": "Tous droits réservés."
+}

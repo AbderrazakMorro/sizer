@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
@@ -13,7 +14,7 @@ import {
   softwareApplicationJsonLd,
 } from "@/components/json-ld";
 import { getSiteUrl } from "@/lib/site-url";
-import "@/styles/globals.css";
+import "../styles/globals.css";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -25,42 +26,42 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Gestión de Proyectos de Diseño Interior",
+    default: "Gestion de projets de design d'intérieur",
     template: "%s | Veta",
   },
   description:
-    "Plataforma integral para gestionar proyectos de diseño interior. Administra clientes, proveedores, catálogos y presupuestos en un solo lugar.",
+    "Plateforme complète pour gérer des projets de design d'intérieur. Gérez clients, fournisseurs, catalogues et devis en un seul endroit.",
   keywords: [
-    "diseño interior",
-    "gestión de proyectos",
-    "diseño de interiores",
-    "software diseño",
-    "presupuestos",
-    "catálogo productos",
+    "design d'intérieur",
+    "gestion de projet",
+    "architecture intérieure",
+    "logiciel design",
+    "devis",
+    "catalogue produits",
   ],
   authors: [{ name: "Veta" }],
   openGraph: {
     type: "website",
-    locale: "es_ES",
+    locale: "fr_FR",
     siteName: "Veta",
-    title: "Veta - Gestión de Proyectos de Diseño Interior",
+    title: "Veta - Gestion de projets de design d'intérieur",
     description:
-      "Plataforma integral para gestionar proyectos de diseño interior.",
+      "Plateforme complète pour gérer des projets de design d'intérieur.",
     url: "/",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Veta - Gestión de Proyectos de Diseño Interior",
+        alt: "Veta - Gestion de projets de design d'intérieur",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Veta - Gestión de Proyectos de Diseño Interior",
+    title: "Veta - Gestion de projets de design d'intérieur",
     description:
-      "Plataforma integral para gestionar proyectos de diseño interior.",
+      "Plateforme complète pour gérer des projets de design d'intérieur.",
     images: ["/opengraph-image"],
   },
   robots: {
@@ -100,19 +101,21 @@ export default async function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={montserrat.variable}
       data-scroll-behavior="smooth"
     >
       <head>
         {/* Aplicar tema antes del primer pintado para evitar que la 404 (y el resto) pierda formato al hidratar (next-themes aplica la clase después). */}
-        <script
+        <Script
+          id="early-theme-initializer"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var k='theme';var t=localStorage.getItem(k);var s=window.matchMedia('(prefers-color-scheme: dark)').matches;var isDark=!t||t==='system'?s:t==='dark';document.documentElement.classList.remove('light');document.documentElement.classList.toggle('dark',isDark);}catch(e){}})();`,
           }}
         />
         {/* Consent default must be read from localStorage in the browser so returning users who already accepted get analytics_storage: granted before GTM/GA runs. Server cannot read localStorage, so we inject default-denied and let this script override from storage. */}
-        <script
+        <Script
           id="gtm-consent-default"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
 window.dataLayer = window.dataLayer || [];
@@ -147,7 +150,7 @@ gtag('set', 'url_passthrough', false);
           }}
         />
       </head>
-      <body className="bg-background min-h-screen font-sans antialiased">
+      <body className="bg-background min-h-screen font-body antialiased">
         <GtmScriptGate />
         <JsonLd data={organizationJsonLd} />
         <JsonLd data={softwareApplicationJsonLd} />

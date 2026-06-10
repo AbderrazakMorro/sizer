@@ -4,7 +4,7 @@ import { CURRENCIES } from "@/lib/currencies";
 export type AppDateFormatPattern = "YYYY-MM-DD" | "MM/DD/YYYY" | "DD/MM/YYYY";
 
 export function intlLocaleForAppLang(lang: Locale): string {
-  return lang === "en" ? "en-US" : "es-ES";
+  return lang === "en" ? "en-US" : "fr-FR";
 }
 
 export function defaultDateFormatForLocale(lang: Locale): AppDateFormatPattern {

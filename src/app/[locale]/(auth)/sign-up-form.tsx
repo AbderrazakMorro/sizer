@@ -9,6 +9,7 @@ import { Link } from "@/i18n/routing";
 import { appPath } from "@/lib/app-paths";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getSupabaseClient } from "@/lib/supabase";
 import {
   Card,
   CardContent,
@@ -27,14 +28,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { pushSignUp } from "@/lib/gtm";
-import { CaptchaGuard } from "@/lib/anti-spam/react";
-import { translateMagicLinkErrorCode } from "@/lib/auth/magic-link-error-i18n";
 
 const VALID_PLAN_CODES = ["BASE", "PRO", "STUDIO"] as const;
 type PlanCode = (typeof VALID_PLAN_CODES)[number];
 
 type SignUpValues = {
   email: string;
+  password: string;
   fullName?: string;
   acceptTerms: boolean;
 };
@@ -43,32 +43,29 @@ type SignUpFormProps = {
   redirectTo?: string | null;
   planParam?: string | null;
   billingParam?: string | null;
-  /** From Server Component so Turnstile works without relying on client bundle env inlining. */
-  turnstileSiteKey?: string | null;
 };
 
 export function SignUpForm({
   redirectTo = null,
   planParam = null,
   billingParam = null,
-  turnstileSiteKey: turnstileSiteKeyProp = null,
 }: SignUpFormProps) {
   const t = useTranslations("SignUp");
   const locale = useLocale();
+  const isFr = locale === "fr";
   const planFromUrl: PlanCode | null =
     planParam && VALID_PLAN_CODES.includes(planParam as PlanCode)
       ? (planParam as PlanCode)
       : null;
 
   const [loading, setLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [needsCaptcha, setNeedsCaptcha] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanCode>(
     planFromUrl ?? "BASE"
   );
 
   const signUpSchema = z.object({
     email: z.string().email(t("emailInvalid")),
+    password: z.string().min(6, isFr ? "Le mot de passe doit contenir au moins 6 caractères" : "Password must be at least 6 characters"),
     fullName: z.string().optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: t("acceptTermsError"),
@@ -84,6 +81,7 @@ export function SignUpForm({
     mode: "onTouched",
     defaultValues: {
       email: "",
+      password: "",
       fullName: "",
       acceptTerms: false,
     },
@@ -94,158 +92,59 @@ export function SignUpForm({
   const isEmailValid =
     emailTrimmed.length > 0 &&
     z.string().email().safeParse(emailTrimmed).success;
-
-  const turnstileSiteKey =
-    turnstileSiteKeyProp?.trim() ||
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ||
-    "";
-
-  useEffect(() => {
-    setNeedsCaptcha(false);
-  }, [watchedEmail]);
-
-  function applySuccessAfterMagicLink() {
-    const billingPeriod =
-      billingParam?.toLowerCase() === "annual" ? "annual" : "monthly";
-    pushSignUp({
-      method: "magic_link",
-      plan_code: selectedPlan,
-      billing_period: billingPeriod,
-    });
-    setEmailSent(true);
-    toast.success(t("toastSuccess"));
-  }
-
-  async function submitMagicLink(
-    values: SignUpValues,
-    captchaToken?: string
-  ): Promise<{ sent: boolean }> {
-    const finalRedirect = redirectTo || appPath("/dashboard");
-    const callbackUrl = `${window.location.origin}/${locale}/callback?next=${encodeURIComponent(finalRedirect)}&type=signup`;
-
-    const response = await fetch("/api/auth/magic-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: values.email,
-        emailRedirectTo: callbackUrl,
-        lang: locale,
-        data: {
-          full_name: values.fullName,
-          signup_plan: selectedPlan,
-          ...(billingParam && { signup_billing: billingParam }),
-        },
-        ...(captchaToken ? { captchaToken } : {}),
-      }),
-    });
-
-    const errorData = (await response.json().catch(() => ({}))) as {
-      error?: string;
-      code?: string;
-    };
-
-    if (!response.ok) {
-      if (errorData.code === "captcha_required") {
-        setNeedsCaptcha(true);
-        toast.info(t("captchaRequired"));
-        if (!turnstileSiteKey) {
-          toast.error(t("captchaMisconfigured"));
-        }
-        return { sent: false };
-      }
-      const mapped = translateMagicLinkErrorCode(errorData.code, t);
-      throw new Error(
-        mapped ?? errorData.error ?? "Failed to send confirmation email"
-      );
-    }
-
-    setNeedsCaptcha(false);
-    return { sent: true };
-  }
+  const watchedPassword = form.watch("password") ?? "";
+  const watchedAcceptTerms = form.watch("acceptTerms");
 
   async function onSubmit(values: SignUpValues) {
     setLoading(true);
     try {
-      const { sent } = await submitMagicLink(values);
-      if (!sent) {
-        return;
+      const supabase = getSupabaseClient();
+      const billingPeriod =
+        billingParam?.toLowerCase() === "annual" ? "annual" : "monthly";
+
+      const finalRedirect = redirectTo || appPath("/dashboard");
+      const callbackUrl = `${window.location.origin}/${locale}/callback?next=${encodeURIComponent(finalRedirect)}&type=signup`;
+
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password || "",
+        options: {
+          emailRedirectTo: callbackUrl,
+          data: {
+            full_name: values.fullName,
+            signup_plan: selectedPlan,
+            ...(billingParam && { signup_billing: billingParam }),
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
       }
-      applySuccessAfterMagicLink();
-    } catch (error: unknown) {
+
+      pushSignUp({
+        method: "password",
+        plan_code: selectedPlan,
+        billing_period: billingPeriod,
+      });
+
+      // Check if session was automatically created (meaning email confirmation is disabled)
+      if (data.session) {
+        toast.success(isFr ? "Compte créé avec succès !" : "Account created successfully!");
+        window.location.href = finalRedirect;
+      } else {
+        toast.success(
+          isFr
+            ? "Inscription réussie ! Veuillez vérifier vos e-mails pour confirmer votre compte."
+            : "Sign up successful! Please check your email to confirm your account."
+        );
+      }
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : t("toastError");
       toast.error(message);
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleResend() {
-    const email = form.getValues("email");
-    const fullName = form.getValues("fullName");
-    if (!email) return;
-
-    setLoading(true);
-    try {
-      const { sent } = await submitMagicLink(
-        {
-          email,
-          fullName,
-          acceptTerms: true,
-        },
-        undefined
-      );
-      if (!sent) {
-        setEmailSent(false);
-        return;
-      }
-      toast.success(t("toastResend"));
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : t("toastResendError");
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (emailSent) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">
-            {t("emailSentTitle")}
-          </h1>
-          <CardDescription>
-            {t("emailSentDescription")}{" "}
-            <strong>{form.getValues("email")}</strong>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              {t("emailSentClick")}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {t("emailSentNoEmail")}
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-row flex-wrap items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setEmailSent(false);
-              form.reset();
-            }}
-          >
-            {t("back")}
-          </Button>
-          <Button variant="link" onClick={handleResend} disabled={loading}>
-            {loading ? t("resending") : t("resend")}
-          </Button>
-        </CardFooter>
-      </Card>
-    );
   }
 
   return (
@@ -254,7 +153,11 @@ export function SignUpForm({
         <h1 className="text-2xl leading-none font-semibold tracking-tight">
           {t("title")}
         </h1>
-        <CardDescription>{t("description")}</CardDescription>
+        <CardDescription>
+          {isFr
+            ? "Entrez vos coordonnées et un mot de passe pour créer votre compte."
+            : "Enter your details and a password to create your account."}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -296,6 +199,23 @@ export function SignUpForm({
             />
             <FormField
               control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isFr ? "Mot de passe" : "Password"}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="acceptTerms"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-y-0 space-x-3">
@@ -324,66 +244,13 @@ export function SignUpForm({
                 </FormItem>
               )}
             />
-            {needsCaptcha ? (
-              turnstileSiteKey ? (
-                <div
-                  className="border-primary/40 bg-muted/40 space-y-2 rounded-lg border p-3"
-                  role="region"
-                  aria-label={t("captchaRequired")}
-                >
-                  <p className="text-muted-foreground text-sm">
-                    {t("captchaRequired")}
-                  </p>
-                  <CaptchaGuard
-                    key={emailTrimmed}
-                    provider="turnstile"
-                    siteKey={turnstileSiteKey}
-                    loadingLabel={t("captchaLoading")}
-                    loadFailedLabel={t("captchaLoadFailed")}
-                    onError={(err) => toast.error(err.message)}
-                    onVerify={(token) => {
-                      void (async () => {
-                        setLoading(true);
-                        try {
-                          const { sent } = await submitMagicLink(
-                            form.getValues(),
-                            token
-                          );
-                          if (!sent) {
-                            return;
-                          }
-                          applySuccessAfterMagicLink();
-                        } catch (error: unknown) {
-                          const message =
-                            error instanceof Error
-                              ? error.message
-                              : t("toastError");
-                          toast.error(message);
-                        } finally {
-                          setLoading(false);
-                        }
-                      })();
-                    }}
-                  />
-                </div>
-              ) : (
-                <div
-                  className="border-destructive/40 bg-destructive/5 rounded-lg border p-3"
-                  role="alert"
-                >
-                  <p className="text-destructive text-sm font-medium">
-                    {t("captchaMisconfigured")}
-                  </p>
-                </div>
-              )
-            ) : null}
             <Button
               type="submit"
               size="lg"
               className="w-full sm:w-auto"
-              disabled={loading || !isEmailValid || !form.watch("acceptTerms")}
+              disabled={loading || !isEmailValid || watchedPassword.length < 6 || !watchedAcceptTerms}
             >
-              {loading ? t("submitting") : t("submit")}
+              {loading ? t("submitting") : isFr ? "S'inscrire" : "Sign Up"}
             </Button>
           </form>
         </Form>

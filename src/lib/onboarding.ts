@@ -48,16 +48,16 @@ const BASE_STEPS: Omit<OnboardingStepDef, "plans">[] = [
   {
     id: "config",
     label: "Configurar cuenta y personalización",
-    href: "/veta-app/settings/account",
+    href: "/sizer-app/settings/account",
   },
-  { id: "client", label: "Añadir un cliente", href: "/veta-app/clients" },
-  { id: "project", label: "Crear un proyecto", href: "/veta-app/projects" },
+  { id: "client", label: "Añadir un cliente", href: "/sizer-app/clients" },
+  { id: "project", label: "Crear un proyecto", href: "/sizer-app/projects" },
 ];
 
 const STEP_PUBLIC_PROFILE: OnboardingStepDef = {
   id: "public-profile",
   label: "Nombre público y correo público",
-  href: "/veta-app/settings/customization",
+  href: "/sizer-app/settings/customization",
   plans: ["PRO", "STUDIO"],
 };
 

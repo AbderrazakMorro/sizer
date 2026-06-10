@@ -35,8 +35,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "PlanPro" });
   const canonical =
-    locale === "es"
-      ? "/plan-pro-independientes-diseno-interior"
+    locale === "fr"
+      ? "/plan-pro-independant"
       : "/en/pro-plan-for-independent-interior-designers";
   return {
     title: t("metaTitle"),
@@ -44,9 +44,9 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        es: "/plan-pro-independientes-diseno-interior",
+        fr: "/plan-pro-independant",
         en: "/en/pro-plan-for-independent-interior-designers",
-        "x-default": "/plan-pro-independientes-diseno-interior",
+        "x-default": "/plan-pro-independant",
       },
     },
     openGraph: {

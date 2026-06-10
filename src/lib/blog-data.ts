@@ -3,9 +3,9 @@ import path from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
 
-export type BlogLocale = "en" | "es";
+export type BlogLocale = "en" | "fr";
 
-const blogLocales: BlogLocale[] = ["en", "es"];
+const blogLocales: BlogLocale[] = ["en", "fr"];
 
 const frontmatterSchema = z.object({
   title: z.coerce.string().min(1),
@@ -53,12 +53,12 @@ export function getPublicBlogPostPath(
   locale: BlogLocale,
   slug: string
 ): string {
-  const prefix = locale === "es" ? "" : "/en";
+  const prefix = locale === "fr" ? "" : "/en";
   return `${prefix}/blog/${slug}`;
 }
 
 export function getPublicBlogIndexPath(locale: BlogLocale): string {
-  return locale === "es" ? "/blog" : "/en/blog";
+  return locale === "fr" ? "/blog" : "/en/blog";
 }
 
 type BlogIOptions = {
@@ -250,7 +250,7 @@ export async function getBlogStaticParams(
   return posts.map((p) => ({ locale: p.locale, slug: p.slug }));
 }
 
-/** Paths like `/blog` (es) and `/en/blog` (en) for sitemap. */
+/** Paths like `/blog` (fr) and `/en/blog` (en) for sitemap. */
 export async function getBlogSitemapPaths(
   options: BlogIOptions = {}
 ): Promise<{ path: string; lastModified: Date }[]> {
@@ -261,7 +261,7 @@ export async function getBlogSitemapPaths(
     { path: "/en/blog", lastModified: new Date() },
   ];
   for (const post of posts) {
-    const prefix = post.locale === "es" ? "" : "/en";
+    const prefix = post.locale === "fr" ? "" : "/en";
     paths.push({
       path: `${prefix}/blog/${post.slug}`,
       lastModified: new Date(post.dateMs),

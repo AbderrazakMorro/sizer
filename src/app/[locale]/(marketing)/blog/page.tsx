@@ -29,7 +29,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Blog" });
-  const canonical = locale === "es" ? "/blog" : "/en/blog";
+  const canonical = locale === "fr" ? "/blog" : "/en/blog";
 
   return {
     title: {
@@ -39,7 +39,7 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        es: "/blog",
+        fr: "/blog",
         en: "/en/blog",
         "x-default": "/blog",
       },

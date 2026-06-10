@@ -37,7 +37,7 @@ export interface Profile {
   updated_at?: string;
 }
 
-export type AccountSettingsLang = "en" | "es";
+export type AccountSettingsLang = "en" | "fr";
 
 export type AccountDateFormat = "YYYY-MM-DD" | "MM/DD/YYYY" | "DD/MM/YYYY";
 
@@ -61,6 +61,27 @@ export interface Client {
   email: string;
   phone: string;
   address: string;
+}
+
+export type ServiceRequestStatus =
+  | "draft"
+  | "submitted"
+  | "in_progress"
+  | "review"
+  | "completed"
+  | "cancelled";
+
+export interface ServiceRequest {
+  id: string;
+  client_id: string;
+  title: string;
+  description: string;
+  dimensions?: string | null;
+  constraints?: string | null;
+  status: ServiceRequestStatus;
+  attached_files: unknown[];
+  created_at: string;
+  updated_at: string;
 }
 
 export type ProjectPhase =
@@ -267,3 +288,14 @@ export interface ProjectItem {
     image_url?: string;
   };
 }
+
+export type UserRole = "client" | "architect" | "site_manager" | "admin";
+
+export interface UserRoleAssignment {
+  id: string;
+  user_id: string;
+  role: UserRole;
+  assigned_at: string;
+  assigned_by?: string;
+}
+

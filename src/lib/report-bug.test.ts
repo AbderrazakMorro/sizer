@@ -12,12 +12,12 @@ describe("getReportBugUrl", () => {
   it("adds view_title and view_url when provided", () => {
     const url = getReportBugUrl({
       viewTitle: "Dashboard",
-      viewUrl: "https://app.example.com/veta-app/dashboard",
+      viewUrl: "https://app.example.com/sizer-app/dashboard",
     });
     expect(url).toContain("view_title=Dashboard");
     expect(url).toContain("view_url=");
     expect(url).toContain(
-      encodeURIComponent("https://app.example.com/veta-app/dashboard")
+      encodeURIComponent("https://app.example.com/sizer-app/dashboard")
     );
   });
 

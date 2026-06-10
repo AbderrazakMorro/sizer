@@ -2,7 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
-import { VetaLogo } from "@/components/veta-logo";
+import { SizerLogo } from "@/components/veta-logo";
 import { GtmPageView } from "@/components/gtm";
 
 export default async function AuthLayout({
@@ -31,7 +31,7 @@ export default async function AuthLayout({
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <Link href="/" className="flex items-center gap-2">
-            <VetaLogo height={28} />
+            <SizerLogo height={28} />
           </Link>
         </div>
         <main id="main-content" className="w-full">

@@ -69,16 +69,16 @@ describe("languageFormSchema", () => {
     ).toBe(true);
   });
 
-  it("rejects invalid lang", () => {
+  it("accepts fr and valid date formats", () => {
     expect(
       languageFormSchema.safeParse({ lang: "fr", date_format: "DD/MM/YYYY" })
         .success
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("rejects invalid date_format", () => {
     expect(
-      languageFormSchema.safeParse({ lang: "es", date_format: "INVALID" })
+      languageFormSchema.safeParse({ lang: "de", date_format: "INVALID" })
         .success
     ).toBe(false);
   });

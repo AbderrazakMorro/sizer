@@ -33,16 +33,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Pricing" });
-  const canonical = locale === "es" ? "/precios" : "/en/pricing";
+  const canonical = locale === "fr" ? "/tarifs" : "/en/pricing";
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: {
       canonical,
       languages: {
-        es: "/precios",
+        fr: "/tarifs",
         en: "/en/pricing",
-        "x-default": "/precios",
+        "x-default": "/tarifs",
       },
     },
     openGraph: {
@@ -126,7 +126,7 @@ export default async function PricingPage({
     { question: t("faq4Question"), answer: t("faq4Answer") },
   ];
 
-  const pricingUrl = `${baseUrl}${locale === "es" ? "/precios" : "/en/pricing"}`;
+  const pricingUrl = `${baseUrl}${locale === "fr" ? "/tarifs" : "/en/pricing"}`;
   return (
     <>
       <JsonLd data={faqPageJsonLd(faqs, pricingUrl)} />

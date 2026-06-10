@@ -1,18 +1,17 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-const LOGO_LIGHT_SRC = "/img/veta-light.webp";
-const LOGO_DARK_SRC = "/img/veta-dark.webp";
+const LOGO_SRC = "/img/LOGONEW25.png";
 
 /** Dimensiones intrínsecas del logo (257×189, más ancho que alto). */
 const LOGO_WIDTH = 257;
 const LOGO_HEIGHT = 189;
 
-export type VetaLogoVariant = "icon" | "full";
+export type SizerLogoVariant = "icon" | "full";
 
-export type VetaLogoProps = {
+export type SizerLogoProps = {
   /** "icon" = solo imagen, "full" = imagen + texto. Por defecto "full". */
-  variant?: VetaLogoVariant;
+  variant?: SizerLogoVariant;
   /** Si se indica, tiene prioridad sobre variant para mostrar/ocultar el texto. */
   showWordmark?: boolean;
   className?: string;
@@ -34,11 +33,11 @@ function LogoLight({
 }) {
   return (
     <Image
-      src={LOGO_LIGHT_SRC}
+      src={LOGO_SRC}
       alt={alt}
       width={width}
       height={height}
-      className={cn("h-auto w-auto flex-shrink-0 dark:hidden", className)}
+      className={cn("h-auto w-auto flex-shrink-0 dark:invert dark:brightness-[2.2]", className)}
       priority
     />
   );
@@ -56,33 +55,33 @@ function LogoDark({
   className?: string;
   alt: string;
 }) {
+  // Use the same official logo for now (no separate dark asset provided).
   return (
     <Image
-      src={LOGO_DARK_SRC}
+      src={LOGO_SRC}
       alt={alt}
       width={width}
       height={height}
-      className={cn("hidden h-auto w-auto flex-shrink-0 dark:block", className)}
+      className={cn("h-auto w-auto flex-shrink-0 dark:invert dark:brightness-[2.2]", className)}
       priority
     />
   );
 }
 
 /**
- * Logo de Veta. Alterna entre solo imagen (variant="icon") o imagen + texto (variant="full").
+ * Logo de Sizer. Alterna entre solo imagen (variant="icon") o imagen + texto (variant="full").
  * Modo claro/oscuro detectado automáticamente vía Tailwind (clase dark en el DOM, p. ej. next-themes).
  */
-export function VetaLogo({
+export function SizerLogo({
   variant = "full",
   showWordmark,
   className,
-  height = 28,
+  height = 35,
   width,
-}: VetaLogoProps) {
-  const showText =
-    showWordmark !== undefined ? showWordmark : variant === "full";
-  /** Empty alt when wordmark is visible to avoid redundant "Veta Veta" for screen readers */
-  const logoSrOnly = showText ? "" : "Veta";
+}: SizerLogoProps) {
+  const showText = false;
+  /** Empty alt when wordmark is visible to avoid redundant "Sizer Sizer" for screen readers */
+  const logoSrOnly = "Sizer";
 
   const aspectRatio = LOGO_WIDTH / LOGO_HEIGHT;
   const containerWidth = width ?? Math.round((height ?? 28) * aspectRatio);
@@ -109,7 +108,7 @@ export function VetaLogo({
         <LogoDark
           width={containerWidth}
           height={containerHeight}
-          className="absolute inset-0 h-full w-full object-contain dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
+          className="absolute inset-0 h-full w-full object-contain"
           alt={logoSrOnly}
         />
       </span>
@@ -123,7 +122,7 @@ export function VetaLogo({
             lineHeight: "20px",
           }}
         >
-          Veta
+          Sizer
         </span>
       )}
     </div>

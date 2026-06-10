@@ -11,16 +11,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Legal" });
-  const canonical = locale === "es" ? "/legal" : "/en/legal";
+  const canonical = locale === "fr" ? "/mentions-legales" : "/en/legal";
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: {
       canonical,
       languages: {
-        es: "/legal",
+        fr: "/mentions-legales",
         en: "/en/legal",
-        "x-default": "/legal",
+        "x-default": "/mentions-legales",
       },
     },
     openGraph: {
@@ -169,7 +169,7 @@ export default async function LegalPage({
           <p className="text-muted-foreground mt-4 text-lg">
             {t("lastUpdated")}:{" "}
             {new Date().toLocaleDateString(
-              locale === "es" ? "es-ES" : "en-GB",
+              locale === "fr" ? "fr-FR" : "en-GB",
               {
                 year: "numeric",
                 month: "long",

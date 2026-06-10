@@ -3,8 +3,8 @@ import { z } from "zod";
 import { resolveBlogLocaleSwitchPath } from "@/lib/blog-data";
 
 const querySchema = z.object({
-  from: z.enum(["en", "es"]),
-  to: z.enum(["en", "es"]),
+  from: z.enum(["en", "fr"]),
+  to: z.enum(["en", "fr"]),
   path: z
     .string()
     .max(512)

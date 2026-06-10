@@ -1,4 +1,7 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
+
 import { useTranslations } from "next-intl";
 import { getSupabaseClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";

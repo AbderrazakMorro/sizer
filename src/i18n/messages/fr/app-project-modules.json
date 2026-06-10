@@ -1,0 +1,193 @@
+{
+  "ProjectModuleNotes": {
+    "title": "Notes",
+    "addTitle": "Ajouter une Note",
+    "placeholder": "Écrire une note...",
+    "save": "Enregistrer la Note",
+    "saving": "Enregistrement...",
+    "shortcutDescription": "pour enregistrer",
+    "empty": "Aucune note.",
+    "emptyHint": "Ajoutez la première avec le formulaire à gauche.",
+    "archive": "Archiver",
+    "archived": "Archivée",
+    "unarchive": "Désarchiver",
+    "actionsAria": "Actions de la note",
+    "delete": "Supprimer",
+    "userFallback": "Utilisateur",
+    "confirmDelete": "Supprimer cette note ?",
+    "confirmDeleteDescription": "Cette action est irréversible.",
+    "disabledMessage": "Les notes ne sont pas incluses dans votre plan actuel.",
+    "toastAddError": "Erreur lors de l'ajout de la note",
+    "toastAdded": "Note ajoutée",
+    "toastDeleteError": "Erreur lors de la suppression de la note",
+    "toastDeleted": "Note supprimée",
+    "toastUpdateError": "Erreur lors de la mise à jour de la note",
+    "toastArchived": "Note archivée",
+    "toastUnarchived": "Note désarchivée"
+  },
+  "ProjectModuleDocuments": {
+    "title": "Documents",
+    "add": "Ajouter un document",
+    "addFirst": "Ajouter le premier document",
+    "empty": "Aucun document.",
+    "downloadAria": "Télécharger le document",
+    "actionsAria": "Actions du document",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer le document ?",
+    "confirmDeleteDescription": "Cette action est irréversible.",
+    "disabledMessage": "Les documents ne sont pas inclus dans votre plan actuel."
+  },
+  "ProjectModuleDashboard": {
+    "title": "Aperçu",
+    "disabledMessage": "L'aperçu n'est pas inclus dans votre plan actuel.",
+    "kpiProgress": "Avancement",
+    "kpiPaymentCoverage": "Couverture des Paiements",
+    "kpiCostDeviation": "Écart de Coûts",
+    "kpiBudgeted": "Budgété",
+    "kpiTotalCost": "Coût total",
+    "kpiGrossMargin": "Marge Brute",
+    "unassigned": "Non assignée",
+    "overcost": "Surcoût",
+    "saving": "Économie",
+    "onTrack": "En ligne",
+    "budgetByCategory": "Budget par Catégorie",
+    "noBudgetLines": "Aucune ligne de budget",
+    "estimated": "Est",
+    "actual": "Réel",
+    "of": "de",
+    "products": "Produits",
+    "budgetLines": "Lignes",
+    "margin": "marge",
+    "cost": "Coût",
+    "sale": "Vente",
+    "purchaseOrderCoverage": "Couverture des Bons de Commande",
+    "noPurchaseOrders": "Aucun bon de commande",
+    "covered": "✓ Couverte",
+    "partial": "⚠ Partielle",
+    "pending": "○ En attente",
+    "alerts": "Alertes",
+    "pendingPurchaseOrdersTitle": "Bons de commande en attente de paiement",
+    "ordersWithoutCoverage": "bon(s) de commande sans couverture",
+    "budgetDeviationTitle": "Écart budgétaire",
+    "estimatedSuffix": "de l'estimation",
+    "negativeMarginTitle": "Marge négative",
+    "negativeMarginDescription": "Les coûts dépassent le budget du client de",
+    "allGood": "Tout est en ordre. Aucune alerte.",
+    "budgetCategory": {
+      "construction": "Travaux",
+      "own_fees": "Honoraires Propres",
+      "external_services": "Services Externes",
+      "operations": "Frais Opérationnels"
+    }
+  },
+  "ProjectModuleBudget": {
+    "status": {
+      "pending": "En attente",
+      "ordered": "Commandé",
+      "received": "Reçu",
+      "installed": "Installé",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "spaceGeneral": "Général",
+    "budgetCategory": {
+      "construction": "Travaux",
+      "own_fees": "Honoraires Propres",
+      "external_services": "Services Externes",
+      "operations": "Frais Opérationnels"
+    },
+    "budgetSubcategory": {
+      "construction": {
+        "demolition": "Démolition",
+        "masonry": "Maçonnerie",
+        "electricity": "Électricité",
+        "plumbing": "Plomberie",
+        "interior_painting": "Peinture Intérieure",
+        "exterior_painting": "Peinture Extérieure",
+        "domotics": "Domotique",
+        "carpentry": "Menuiserie",
+        "locksmithing": "Serrurerie",
+        "hvac": "Climatisation",
+        "flooring": "Sols et Revêtements",
+        "tiling": "Carrelage",
+        "other": "Autres"
+      },
+      "own_fees": {
+        "design": "Conception",
+        "executive_project": "Projet Exécutif",
+        "site_supervision": "Supervision de Chantier",
+        "management": "Gestion et Coordination",
+        "other": "Autres"
+      },
+      "external_services": {
+        "technical_architect": "Architecte Technique",
+        "engineering": "Ingénierie",
+        "logistics": "Logistique",
+        "permits": "Gestion des Permis",
+        "consulting": "Conseil",
+        "other": "Autres"
+      },
+      "operations": {
+        "shipping": "Expédition",
+        "packaging": "Emballage",
+        "transport": "Transport",
+        "storage": "Stockage",
+        "insurance": "Assurances",
+        "customs": "Douanes",
+        "handling": "Manutention",
+        "other": "Autres"
+      }
+    }
+  },
+  "ProjectModuleCostControl": {
+    "pending": "En attente",
+    "budgetCategory": {
+      "construction": "Travaux",
+      "own_fees": "Honoraires Propres",
+      "external_services": "Services Externes",
+      "operations": "Frais Opérationnels"
+    },
+    "budgetSubcategory": {
+      "construction": {
+        "demolition": "Démolition",
+        "masonry": "Maçonnerie",
+        "electricity": "Électricité",
+        "plumbing": "Plomberie",
+        "interior_painting": "Peinture Intérieure",
+        "exterior_painting": "Peinture Extérieure",
+        "domotics": "Domotique",
+        "carpentry": "Menuiserie",
+        "locksmithing": "Serrurerie",
+        "hvac": "Climatisation",
+        "flooring": "Sols et Revêtements",
+        "tiling": "Carrelage",
+        "other": "Autres"
+      },
+      "own_fees": {
+        "design": "Conception",
+        "executive_project": "Projet Exécutif",
+        "site_supervision": "Supervision de Chantier",
+        "management": "Gestion et Coordination",
+        "other": "Autres"
+      },
+      "external_services": {
+        "technical_architect": "Architecte Technique",
+        "engineering": "Ingénierie",
+        "logistics": "Logistique",
+        "permits": "Gestion des Permis",
+        "consulting": "Conseil",
+        "other": "Autres"
+      },
+      "operations": {
+        "shipping": "Expédition",
+        "packaging": "Emballage",
+        "transport": "Transport",
+        "storage": "Stockage",
+        "insurance": "Assurances",
+        "customs": "Douanes",
+        "handling": "Manutention",
+        "other": "Autres"
+      }
+    }
+  }
+}
