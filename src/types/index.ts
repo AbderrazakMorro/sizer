@@ -28,6 +28,16 @@ export interface EffectivePlan {
   config: PlanConfig;
 }
 
+export type UserRole = "client" | "architect" | "site_manager" | "admin" | "engineer";
+
+export interface UserRoleAssignment {
+  id: string;
+  user_id: string;
+  role: UserRole;
+  assigned_at: string;
+  assigned_by?: string;
+}
+
 export interface Profile {
   id: string;
   email?: string;
@@ -35,6 +45,13 @@ export interface Profile {
   avatar_url?: string;
   company?: string;
   updated_at?: string;
+}
+
+export interface UserWithRoles extends Profile {
+  roles: UserRole[];
+  is_suspended?: boolean;
+  created_at?: string;
+  last_sign_in_at?: string;
 }
 
 export type AccountSettingsLang = "en" | "fr";
@@ -66,14 +83,22 @@ export interface Client {
 export type ServiceRequestStatus =
   | "draft"
   | "submitted"
+  | "pending_approval"
+  | "approved"
+  | "assigned"
+  | "rejected"
   | "in_progress"
   | "review"
   | "completed"
   | "cancelled";
 
+export type ServiceRequestPriority = "low" | "medium" | "high" | "urgent";
+
+export type EngineerRole = "lead" | "support" | "consultant";
+
 export interface ServiceRequest {
   id: string;
-  client_id: string;
+  client_id: string | null;
   title: string;
   description: string;
   dimensions?: string | null;
@@ -82,6 +107,77 @@ export interface ServiceRequest {
   attached_files: unknown[];
   created_at: string;
   updated_at: string;
+  // Guest submission fields
+  tracking_serial?: string | null;
+  guest_email?: string | null;
+  guest_name?: string | null;
+  guest_phone?: string | null;
+  project_type?: string | null;
+  budget_range?: string | null;
+  preferred_contact?: string | null;
+  converted_to_user_at?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+  // Admin workflow fields
+  approved_at?: string | null;
+  approved_by?: string | null;
+  rejected_at?: string | null;
+  rejected_by?: string | null;
+  rejection_reason?: string | null;
+  converted_to_project_id?: string | null;
+  priority?: ServiceRequestPriority;
+  estimated_budget?: number | null;
+  estimated_duration_days?: number | null;
+  admin_notes?: string | null;
+}
+
+export interface ServiceRequestAssignment {
+  id: string;
+  service_request_id: string;
+  engineer_id: string;
+  assigned_at: string;
+  assigned_by: string;
+  role: EngineerRole;
+  notes?: string | null;
+  created_at: string;
+  engineer?: {
+    full_name: string;
+    email: string;
+  };
+}
+
+export interface AdminServiceRequestView {
+  id: string;
+  title: string;
+  description: string;
+  status: ServiceRequestStatus;
+  priority: ServiceRequestPriority;
+  created_at: string;
+  updated_at: string;
+  approved_at?: string | null;
+  estimated_budget?: number | null;
+  estimated_duration_days?: number | null;
+  tracking_serial?: string | null;
+  project_type?: string | null;
+  budget_range?: string | null;
+  converted_to_project_id?: string | null;
+  client_name: string;
+  client_email: string;
+  client_phone?: string;
+  approved_by_name?: string | null;
+  assigned_engineers_count: number;
+  lead_engineer_name?: string | null;
+  project_name?: string | null;
+  project_status?: ProjectStatus | null;
+}
+
+export interface ServiceRequestTracking {
+  tracking_serial: string;
+  title: string;
+  status: ServiceRequestStatus;
+  created_at: string;
+  updated_at: string;
+  masked_email: string | null;
 }
 
 export type ProjectPhase =

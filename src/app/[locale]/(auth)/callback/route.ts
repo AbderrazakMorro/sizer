@@ -57,6 +57,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (!error && result?.data?.session) {
+      // For invite links, the next param is already /set-password (set in the action).
+      // Just redirect there directly without extra signup plan logic.
+      if (typeParam === "invite" || redirectPath.includes("/set-password")) {
+        const redirectUrl = new URL(redirectPath, origin);
+        const response = NextResponse.redirect(redirectUrl.toString());
+        pendingCookies.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        );
+        return response;
+      }
+
       const authConfirmed =
         typeParam &&
         AUTH_CONFIRMED_TYPES.includes(

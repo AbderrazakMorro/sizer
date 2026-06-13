@@ -37,6 +37,9 @@ const PUBLIC_ROUTES = [
   "/demo",
   "/sign-in",
   "/sign-up",
+  "/set-password",
+  "/demande-service",
+  "/service-request",
   "/sitemap.xml",
   "/robots.txt",
 ];
@@ -57,6 +60,8 @@ function isPublicPath(pathname: string): boolean {
     pathname === "/callback" ||
     pathnameWithoutLocale === "/auth/complete" ||
     pathname === "/auth/complete" ||
+    pathnameWithoutLocale === "/set-password" ||
+    pathname === "/set-password" ||
     pathnameWithoutLocale.startsWith("/plan-") ||
     pathname.startsWith("/plan-") ||
     pathnameWithoutLocale.startsWith("/blog/") ||

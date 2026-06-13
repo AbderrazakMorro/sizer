@@ -146,6 +146,14 @@ const nextConfig: NextConfig = {
         source: "/plan-studio-entreprise",
         destination: "/fr/plan-studio",
       },
+      {
+        source: "/demande-service",
+        destination: "/fr/demande-service",
+      },
+      {
+        source: "/callback",
+        destination: "/fr/callback",
+      },
       // EN: about-veta localized URL -> internal `/en/about` directory
       { source: "/en/about-veta", destination: "/en/about" },
       // EN: map plan landing slugs to internal plan directory names.
@@ -160,6 +168,10 @@ const nextConfig: NextConfig = {
       {
         source: "/en/studio-plan-for-architecture-and-interior-design-firms",
         destination: "/en/plan-studio",
+      },
+      {
+        source: "/en/service-request",
+        destination: "/en/demande-service",
       },
     ];
   },

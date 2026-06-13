@@ -572,5 +572,9 @@
     "supportBasic": "Email support",
     "supportPlus": "Email support",
     "supportFull": "Priority support"
+  },
+  "demande-service": {
+    "title": "Service Request | Veta Studio",
+    "description": "Start your architecture and interior design project with Veta Studio."
   }
 }

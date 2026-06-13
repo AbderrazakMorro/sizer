@@ -218,6 +218,7 @@
     "heroSubtitle": "Notre équipe est prête à répondre à vos questions et à vous aider à tirer le meilleur parti de Veta.",
     "methodFormTitle": "Envoyez-nous un message",
     "methodFormDesc": "Remplissez le formulaire et nous vous répondrons dans les 24 heures.",
+    "methodFormValue": "Aller au formulaire",
     "methodEmailTitle": "E-mail",
     "methodEmailDesc": "Envoyez-nous un e-mail et nous répondrons sous 24 heures.",
     "formSectionTitle": "Envoyez-nous un message",
@@ -571,5 +572,9 @@
     "supportBasic": "Support par e-mail",
     "supportPlus": "Support par e-mail",
     "supportFull": "Support prioritaire"
+  },
+  "demande-service": {
+    "title": "Demande de service | Veta Studio",
+    "description": "Initiez votre projet d'architecture et de design avec Veta Studio."
   }
 }

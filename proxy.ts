@@ -47,7 +47,7 @@ export default async function proxy(request: NextRequest) {
   // 2) Rutas internas de app/API → solo auth Supabase (sin i18n)
   if (
     pathname.startsWith("/api/") ||
-    pathname.startsWith("/veta-app/") ||
+    pathname.startsWith("/sizer-app/") ||
     pathname.startsWith("/view-project/")
   ) {
     return await updateSession(request);

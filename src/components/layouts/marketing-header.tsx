@@ -62,12 +62,12 @@ export function MarketingHeader() {
           >
             {isFr ? "CONNEXION" : "LOGIN"}
           </Link>
-          <AnchorToHash
-            href="/#contact"
-            className="border border-outline-variant/30 px-6 py-2 text-label-sm font-label-sm uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-background transition-all duration-300"
+          <Link
+            href="/demande-service"
+            className="btn-primary px-6 py-2 text-label-sm font-label-sm uppercase tracking-[0.2em]"
           >
             {isFr ? "DEMANDER UN SERVICE" : "REQUEST A SERVICE"}
-          </AnchorToHash>
+          </Link>
           <div className="flex items-center ml-4">
             <LanguageToggle />
           </div>
@@ -107,13 +107,13 @@ export function MarketingHeader() {
           >
             {isFr ? "CONNEXION" : "LOGIN"}
           </Link>
-          <AnchorToHash
-            href="/#contact"
+          <Link
+            href="/demande-service"
             onClick={() => setMobileMenuOpen(false)}
-            className="border border-outline-variant/30 px-6 py-2 text-center text-label-sm font-label-sm uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-background transition-all duration-300 w-full"
+            className="btn-primary px-6 py-2 text-center text-label-sm font-label-sm uppercase tracking-[0.2em] w-full"
           >
             {isFr ? "DEMANDER UN SERVICE" : "REQUEST A SERVICE"}
-          </AnchorToHash>
+          </Link>
         </div>
       )}
     </nav>

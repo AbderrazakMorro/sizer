@@ -26,6 +26,7 @@ export const routing = defineRouting({
     "/sign-in": { fr: "/sign-in", en: "/sign-in" },
     "/sign-up": { fr: "/sign-up", en: "/sign-up" },
     "/auth/complete": { fr: "/auth/complete", en: "/auth/complete" },
+    "/set-password": { fr: "/set-password", en: "/set-password" },
     "/plan-base": {
       fr: "/plan-de-base-premier-projet",
       en: "/base-plan-first-interior-design-project",
@@ -37,6 +38,10 @@ export const routing = defineRouting({
     "/plan-studio": {
       fr: "/plan-studio-entreprise",
       en: "/studio-plan-for-architecture-and-interior-design-firms",
+    },
+    "/demande-service": {
+      fr: "/demande-service",
+      en: "/service-request",
     },
   },
 });

@@ -4,8 +4,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
-import { useOnboardingStatus } from "@/lib/use-onboarding-status";
-import { OnboardingStepModal } from "@/components/onboarding/onboarding-step-modal";
+import { ServiceRequestForm } from "@/components/forms/service-request-form";
 import {
   ONBOARDING_SESSION_SKIP_KEY,
   ONBOARDING_WELCOME_SEEN_SESSION_KEY,
@@ -51,6 +50,13 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -115,16 +121,6 @@ function getSettingsBreadcrumbs(
   return items;
 }
 
-const MOBILE_BOTTOM_TABS: {
-  messageKey: "dashboard" | "clients" | "projects" | "suppliers";
-  path: string;
-  icon: LucideIcon;
-}[] = [
-  { messageKey: "dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { messageKey: "projects", path: "/projects", icon: FolderKanban },
-  { messageKey: "clients", path: "/clients", icon: Users },
-  { messageKey: "suppliers", path: "/suppliers", icon: Truck },
-];
 
 function isMobileTabActive(pathname: string, path: string): boolean {
   const href = appPath(path);
@@ -147,12 +143,14 @@ function MobileBottomNav({
   pathname,
   isMenuOpen,
   onMenuOpen,
+  navItems,
   tNav,
   tLayout,
 }: {
   pathname: string;
   isMenuOpen: boolean;
   onMenuOpen: () => void;
+  navItems: Array<{ name: string; href: string; icon: LucideIcon; onClick?: () => void }>;
   tNav: ReturnType<typeof useTranslations<"AppNav">>;
   tLayout: ReturnType<typeof useTranslations<"AppLayout">>;
 }) {
@@ -168,13 +166,20 @@ function MobileBottomNav({
       className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 fixed inset-x-0 bottom-0 z-40 touch-manipulation border-t pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-sm md:hidden print:hidden"
     >
       <div className="flex h-16 items-stretch px-1">
-        {MOBILE_BOTTOM_TABS.map((tab) => {
-          const isActive = isMobileTabActive(pathname, tab.path);
-          const Icon = tab.icon;
+        {navItems.slice(0, 4).map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = item.icon;
+          const handleClick = (e: React.MouseEvent) => {
+            if (item.onClick) {
+              e.preventDefault();
+              item.onClick();
+            }
+          };
           return (
             <Link
-              key={tab.path}
-              href={appPath(tab.path)}
+              key={item.href}
+              href={item.href}
+              onClick={handleClick}
               className={tabClass(isActive)}
               aria-current={isActive ? "page" : undefined}
             >
@@ -183,7 +188,7 @@ function MobileBottomNav({
                 aria-hidden
               />
               <span className="max-w-full truncate text-[10px] leading-tight font-medium">
-                {tNav(tab.messageKey)}
+                {item.name}
               </span>
             </Link>
           );
@@ -217,27 +222,30 @@ function SidebarContent({
   user,
   profileFullName,
   effectivePlan,
+  roles,
   signOut,
   pathname,
   setIsMobileOpen,
   isCollapsed,
   setIsCollapsed,
+  onServiceRequestClick,
   className,
 }: {
   collapsed?: boolean;
   user: ReturnType<typeof useAuth>["user"];
   profileFullName: ReturnType<typeof useAuth>["profileFullName"];
   effectivePlan: ReturnType<typeof useAuth>["effectivePlan"];
+  roles: ReturnType<typeof useAuth>["roles"];
   signOut: () => Promise<void>;
   pathname: string;
   setIsMobileOpen: (open: boolean) => void;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
+  onServiceRequestClick?: () => void;
   /** Clases adicionales para el contenedor raíz (ej. en desktop: md:fixed md:w-64) */
   className?: string;
 }) {
   const tNav = useTranslations("AppNav");
-  const { roles } = useAuth();
 
   const navItems = useMemo(() => {
     const items = [];
@@ -255,6 +263,7 @@ function SidebarContent({
           name: tNav("requestServices"),
           href: appPath("/client/services"),
           icon: FolderKanban,
+          onClick: onServiceRequestClick,
         }
       );
     }
@@ -297,9 +306,9 @@ function SidebarContent({
     if (rolesList.includes("admin")) {
       items.push(
         {
-          name: tNav("users"),
-          href: appPath("/admin/users"),
-          icon: Users,
+          name: tNav("serviceRequests"),
+          href: appPath("/admin/service-requests"),
+          icon: FolderKanban,
         },
         {
           name: tNav("hr"),
@@ -315,7 +324,7 @@ function SidebarContent({
     }
 
     return items;
-  }, [roles, tNav]);
+  }, [roles, tNav, onServiceRequestClick]);
 
   const settingsNavItems = useMemo(() => {
     const rolesList = roles && roles.length > 0 ? roles : ["client"];
@@ -327,16 +336,6 @@ function SidebarContent({
     return [
       { name: tNav("back"), href: backHref, icon: ArrowLeft },
       { name: tNav("account"), href: appPath("/settings/account"), icon: User },
-      {
-        name: tNav("customization"),
-        href: appPath("/settings/customization"),
-        icon: SlidersHorizontal,
-      },
-      {
-        name: tNav("yourPlan"),
-        href: appPath("/settings/plan"),
-        icon: CreditCard,
-      },
     ];
   }, [roles, tNav]);
 
@@ -352,10 +351,18 @@ function SidebarContent({
     isActive: boolean,
     animationDelayMs?: number
   ) => {
+    const handleClick = (e: React.MouseEvent) => {
+      if ('onClick' in item && item.onClick) {
+        e.preventDefault();
+        item.onClick();
+      }
+      setIsMobileOpen(false);
+    };
+
     const linkContent = (
       <Link
         href={item.href}
-        onClick={() => setIsMobileOpen(false)}
+        onClick={handleClick}
         className={cn(
           "group flex items-center rounded-xl text-sm font-medium transition-all duration-200",
           collapsed ? "justify-center px-2 py-2.5" : "px-4 py-2.5",
@@ -431,7 +438,7 @@ function SidebarContent({
           )}
         >
           <SizerLogo
-            height={28}
+            height={48}
             showWordmark={!collapsed}
             className="text-foreground"
           />
@@ -465,69 +472,6 @@ function SidebarContent({
             </Fragment>
           );
         })}
-        {isInSettings && (
-          <span
-            className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards block duration-300"
-            style={{ animationDelay: "320ms" }}
-          >
-            {(() => {
-              const isDark = theme === "dark";
-              const oppositeLabel = isDark
-                ? tNav("lightMode")
-                : tNav("darkMode");
-              const ariaLabel = isDark
-                ? tNav("switchToLight")
-                : tNav("switchToDark");
-              if (!themeMounted) {
-                return (
-                  <div className="text-muted-foreground flex cursor-default items-center justify-between gap-2 rounded-xl px-4 py-2.5 text-sm font-medium">
-                    <span className="flex items-center gap-3">
-                      <Sun className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && tNav("theme")}
-                    </span>
-                  </div>
-                );
-              }
-              return collapsed ? (
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setTheme(isDark ? "light" : "dark")}
-                      className="group text-muted-foreground hover:bg-secondary hover:text-secondary-foreground flex w-full cursor-pointer items-center justify-center rounded-xl px-2 py-2.5 text-sm font-medium transition-all duration-200 [&_svg]:size-5"
-                      aria-label={ariaLabel}
-                    >
-                      {isDark ? (
-                        <Sun className="h-5 w-5 flex-shrink-0 transition-transform group-hover:scale-110" />
-                      ) : (
-                        <Moon className="h-5 w-5 flex-shrink-0 transition-transform group-hover:scale-110" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" variant="tertiary">
-                    {oppositeLabel}
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <Button
-                  variant="ghost"
-                  onClick={() => setTheme(isDark ? "light" : "dark")}
-                  className="text-muted-foreground hover:bg-secondary hover:text-secondary-foreground flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors [&_svg]:size-5"
-                  aria-label={ariaLabel}
-                >
-                  <span className="flex items-center gap-3">
-                    {isDark ? (
-                      <Sun className="h-5 w-5 flex-shrink-0" />
-                    ) : (
-                      <Moon className="h-5 w-5 flex-shrink-0" />
-                    )}
-                    {oppositeLabel}
-                  </span>
-                </Button>
-              );
-            })()}
-          </span>
-        )}
       </nav>
       <div
         className={cn(
@@ -535,30 +479,6 @@ function SidebarContent({
           collapsed ? "p-2" : "space-y-3 p-4"
         )}
       >
-        {effectivePlan?.plan_code === "BASE" &&
-          (collapsed ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={appPath("/settings/plan/change")}
-                  className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
-                >
-                  <Rocket className="h-4 w-4 shrink-0" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right" variant="tertiary">
-                {tNav("upgradePlanTooltip")}
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              href={appPath("/settings/plan/change")}
-              className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 mb-2 flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors"
-            >
-              <Rocket className="h-4 w-4 shrink-0" />
-              <span>{tNav("upgradePlanCta")}</span>
-            </Link>
-          ))}
         {collapsed ? (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
@@ -730,51 +650,88 @@ export default function AppLayoutClient({
   const tLayout = useTranslations("AppLayout");
   const tCrumb = useTranslations("AppSettingsBreadcrumb");
   const tNav = useTranslations("AppNav");
-  const { user, profileFullName, effectivePlan, signOut, loading } = useAuth();
+  const { user, profileFullName, effectivePlan, roles, signOut, loading } = useAuth();
   const pathname = usePathname();
+
+  // State declarations - must be before useMemo that uses them
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [skippedOnboardingThisSession, setSkippedOnboardingThisSession] =
-    useState(
-      () =>
-        typeof window !== "undefined" &&
-        !!sessionStorage.getItem(ONBOARDING_SESSION_SKIP_KEY)
+  const [serviceRequestModalOpen, setServiceRequestModalOpen] = useState(false);
+
+  // Navigation items based on user roles
+  const navItems = useMemo(() => {
+    const items = [];
+    const rolesList = roles && roles.length > 0 ? roles : ["client"];
+
+    // 1. Client navigation items
+    if (rolesList.includes("client")) {
+      items.push(
+        {
+          name: tNav("clientDashboard"),
+          href: appPath("/client"),
+          icon: LayoutDashboard,
+        },
+        {
+          name: tNav("requestServices"),
+          href: appPath("/client/services"),
+          icon: FolderKanban,
+          onClick: () => setServiceRequestModalOpen(true),
+        }
+      );
+    }
+
+    // 2. Internal Staff (architect, site_manager, admin) navigation items
+    const isInternal = rolesList.some((r) =>
+      ["architect", "site_manager", "admin"].includes(r)
     );
-  const [onboardingModalOpen, setOnboardingModalOpen] = useState(true);
-  const [, setWelcomeDismissedTrigger] = useState(0);
-  const { firstPendingStepId, loading: onboardingLoading } =
-    useOnboardingStatus();
-  const showOnboardingModal =
-    !onboardingLoading &&
-    firstPendingStepId !== null &&
-    !skippedOnboardingThisSession;
-
-  // Reabrir el modal al navegar a una página que no sea la del paso actual (oculto temporalmente para realizar la acción)
-  useEffect(() => {
-    if (
-      showOnboardingModal &&
-      firstPendingStepId &&
-      !isOnOnboardingStepTargetPage(pathname, firstPendingStepId)
-    ) {
-      setOnboardingModalOpen(true);
+    if (isInternal) {
+      items.push(
+        {
+          name: tNav("dashboard"),
+          href: appPath("/dashboard"),
+          icon: LayoutDashboard,
+        },
+        {
+          name: tNav("projects"),
+          href: appPath("/projects"),
+          icon: FolderKanban,
+        },
+        {
+          name: tNav("clients"),
+          href: appPath("/clients"),
+          icon: Users,
+        },
+        {
+          name: tNav("suppliers"),
+          href: appPath("/suppliers"),
+          icon: Truck,
+        },
+        {
+          name: tNav("catalog"),
+          href: appPath("/catalog"),
+          icon: ShoppingBag,
+        }
+      );
     }
-  }, [showOnboardingModal, pathname, firstPendingStepId]);
 
-  const handleOnboardingWelcomeComplete = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(ONBOARDING_WELCOME_SEEN_SESSION_KEY, "1");
+    // 3. Admin specific navigation items
+    if (rolesList.includes("admin")) {
+      items.push(
+        {
+          name: tNav("hr"),
+          href: appPath("/admin/hr"),
+          icon: SlidersHorizontal,
+        },
+        {
+          name: tNav("site"),
+          href: appPath("/admin/site"),
+          icon: Settings,
+        }
+      );
     }
-    setWelcomeDismissedTrigger((n) => n + 1);
-    return Promise.resolve();
-  };
 
-  const handleOnboardingOmitir = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(ONBOARDING_SESSION_SKIP_KEY, "1");
-    }
-    setSkippedOnboardingThisSession(true);
-    setOnboardingModalOpen(false);
-  };
+    return items;
+  }, [roles, tNav]);
 
   useEffect(() => {
     document.body.classList.add("sizer-app");
@@ -799,15 +756,6 @@ export default function AppLayoutClient({
       <a href="#main-content" className="skip-link">
         {tLayout("skipToContent")}
       </a>
-      {showOnboardingModal && firstPendingStepId && (
-        <OnboardingStepModal
-          stepId={firstPendingStepId}
-          open={onboardingModalOpen}
-          onOpenChange={setOnboardingModalOpen}
-          onOmitir={handleOnboardingOmitir}
-          onWelcomeComplete={handleOnboardingWelcomeComplete}
-        />
-      )}
       <div className="bg-background text-foreground flex min-h-screen">
         {/* Desktop Sidebar */}
         <SidebarContent
@@ -815,11 +763,13 @@ export default function AppLayoutClient({
           user={user}
           profileFullName={profileFullName}
           effectivePlan={effectivePlan}
+          roles={roles}
           signOut={signOut}
           pathname={pathname}
           setIsMobileOpen={setIsMobileOpen}
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
+          onServiceRequestClick={() => setServiceRequestModalOpen(true)}
           className={cn(
             "z-50 hidden shadow-sm transition-all duration-300 md:fixed md:inset-y-0 md:flex md:flex-col print:hidden",
             isCollapsed ? "md:w-16" : "md:w-64"
@@ -845,11 +795,13 @@ export default function AppLayoutClient({
               user={user}
               profileFullName={profileFullName}
               effectivePlan={effectivePlan}
+              roles={roles}
               signOut={signOut}
               pathname={pathname}
               setIsMobileOpen={setIsMobileOpen}
               isCollapsed={isCollapsed}
               setIsCollapsed={setIsCollapsed}
+              onServiceRequestClick={() => setServiceRequestModalOpen(true)}
             />
           </SheetContent>
         </Sheet>
@@ -860,6 +812,96 @@ export default function AppLayoutClient({
             isCollapsed ? "md:ml-16" : "md:ml-64"
           )}
         >
+          {/* Top Navbar */}
+          <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border sticky top-0 z-30 hidden border-b backdrop-blur-sm md:block print:hidden">
+            <div className="flex h-16 items-center justify-between px-6">
+              <div className="flex items-center gap-1">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const Icon = item.icon;
+                  const handleClick = (e: React.MouseEvent) => {
+                    if ('onClick' in item && typeof item.onClick === 'function') {
+                      e.preventDefault();
+                      item.onClick();
+                    }
+                  };
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={handleClick}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hover:bg-secondary text-muted-foreground hover:text-foreground"
+                    >
+                      <Avatar className="border-border h-8 w-8 border">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {user?.email?.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 rounded-xl">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col gap-1.5">
+                        <p className="text-sm font-medium">
+                          {getDisplayName(user, profileFullName)}
+                        </p>
+                        <p className="text-muted-foreground text-xs">{user?.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href={appPath("/settings")}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        {tNav("settings")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const url = getReportBugUrl({
+                          viewTitle: typeof document !== "undefined" ? document.title : "",
+                          viewUrl: typeof window !== "undefined" ? window.location.href : "",
+                        });
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <Bug className="mr-2 h-4 w-4" />
+                      {tNav("reportBug")}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={signOut}
+                      className="text-destructive focus:text-destructive cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      {tNav("signOut")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </nav>
+
           <main
             id="main-content"
             tabIndex={-1}
@@ -911,11 +953,31 @@ export default function AppLayoutClient({
             pathname={pathname}
             isMenuOpen={isMobileOpen}
             onMenuOpen={() => setIsMobileOpen(true)}
+            navItems={navItems}
             tNav={tNav}
             tLayout={tLayout}
           />
         </div>
       </div>
+
+      {/* Service Request Modal */}
+      <Dialog open={serviceRequestModalOpen} onOpenChange={setServiceRequestModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <DialogTitle className="text-xl font-semibold">Nouvelle demande de service</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Remplissez le formulaire ci-dessous pour créer une nouvelle demande de service.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 py-4">
+            <ServiceRequestForm
+              onSuccess={() => setServiceRequestModalOpen(false)}
+              userEmail={user?.email}
+              userName={profileFullName || undefined}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 }

@@ -3,10 +3,10 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import {
-  sendTransactionalEmail,
   getContactFormToEmail,
   getDefaultFrom,
 } from "@/lib/email/mailersend";
+import { sendEmail } from "@/lib/email/nodemailer";
 import {
   checkRateLimit,
   getClientIpFromHeaders,
@@ -121,22 +121,42 @@ export async function submitContactForm(
 
   const subjectForHeader = sanitizeEmailSubjectFragment(subject);
 
-  const result = await sendTransactionalEmail({
+  // Send notification to the studio
+  const studioResult = await sendEmail({
     to: toEmail,
-    from: from.email,
-    fromName: from.name,
-    replyTo: { email, name },
     subject: `[Veta Contacto] ${subjectForHeader}`,
     text,
     html,
   });
 
-  if (!result.success) {
+  if (!studioResult.success) {
     return {
       error:
-        result.error || "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+        studioResult.error || "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     };
   }
+
+  // Send confirmation to the client
+  const clientHtml = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1c1c1c;">
+      <h2>Bonjour ${escapeHtml(name)},</h2>
+      <p>Nous avons bien reçu votre message et nous vous en remercions.</p>
+      <p>Notre équipe va l'étudier avec attention et reviendra vers vous très prochainement.</p>
+      <p>Voici un récapitulatif de votre demande :</p>
+      <blockquote style="border-left: 4px solid #d4af37; padding-left: 16px; color: #555; margin-left: 0;">
+        <strong>Sujet :</strong> ${escapeHtml(subject)}<br><br>
+        ${escapeHtml(message).replace(/\n/g, "<br>")}
+      </blockquote>
+      <p>À très bientôt,<br>L'équipe Veta</p>
+    </div>
+  `;
+
+  await sendEmail({
+    to: email,
+    subject: "Confirmation de votre demande de contact - Veta",
+    html: clientHtml,
+    text: `Bonjour ${name},\n\nNous avons bien reçu votre message et nous vous en remercions.\nNotre équipe reviendra vers vous très prochainement.\n\nL'équipe Veta`,
+  });
 
   return { success: true };
 }

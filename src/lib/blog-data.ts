@@ -39,9 +39,7 @@ export type BlogPostSource = BlogPostSummary & {
 
 const defaultBlogContentRoot = path.join(
   process.cwd(),
-  "src",
-  "content",
-  "blog"
+  "src/content/blog"
 );
 
 export function getDefaultBlogContentRoot(): string {
