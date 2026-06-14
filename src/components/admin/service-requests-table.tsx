@@ -12,9 +12,11 @@ import {
   ArrowRight,
   MoreHorizontal,
   Eye,
+  Search,
 } from "lucide-react";
 import type { AdminServiceRequestView } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -108,11 +110,18 @@ const priorityConfig = {
 export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredRequests =
-    filterStatus === "all"
-      ? requests
-      : requests.filter((r) => r.status === filterStatus);
+  const filteredRequests = requests.filter((r) => {
+    const matchesStatus = filterStatus === "all" || r.status === filterStatus;
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      !q ||
+      (r.client_name || "").toLowerCase().includes(q) ||
+      (r.client_email || "").toLowerCase().includes(q) ||
+      (r.title || "").toLowerCase().includes(q);
+    return matchesStatus && matchesSearch;
+  });
 
   const stats = {
     total: requests.length,
@@ -161,37 +170,48 @@ export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle>Demandes de Service</CardTitle>
               <CardDescription>
                 {filteredRequests.length} demande(s) affichée(s)
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={filterStatus === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("all")}
-              >
-                Toutes
-              </Button>
-              <Button
-                variant={
-                  filterStatus === "pending_approval" ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => setFilterStatus("pending_approval")}
-              >
-                En attente
-              </Button>
-              <Button
-                variant={filterStatus === "approved" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus("approved")}
-              >
-                Approuvées
-              </Button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher..."
+                  className="pl-8 w-full sm:w-[250px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={filterStatus === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterStatus("all")}
+                >
+                  Toutes
+                </Button>
+                <Button
+                  variant={
+                    filterStatus === "pending_approval" ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => setFilterStatus("pending_approval")}
+                >
+                  En attente
+                </Button>
+                <Button
+                  variant={filterStatus === "approved" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterStatus("approved")}
+                >
+                  Approuvées
+                </Button>
+              </div>
             </div>
           </div>
         </CardHeader>

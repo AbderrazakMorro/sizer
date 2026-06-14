@@ -24,17 +24,17 @@ function getStatusLabel(status: string) {
 function getStatusClasses(status: string) {
   switch (status) {
     case "submitted":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200";
+      return "bg-amber-500/10 text-amber-500 border border-amber-500/20";
     case "in_progress":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/20 dark:text-sky-200";
+      return "bg-sky-500/10 text-sky-500 border border-sky-500/20";
     case "review":
-      return "bg-violet-100 text-violet-800 dark:bg-violet-900/20 dark:text-violet-200";
+      return "bg-violet-500/10 text-violet-500 border border-violet-500/20";
     case "completed":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-200";
+      return "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
     case "cancelled":
-      return "bg-rose-100 text-rose-800 dark:bg-rose-900/20 dark:text-rose-200";
+      return "bg-rose-500/10 text-rose-500 border border-rose-500/20";
     default:
-      return "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200";
+      return "bg-gray-500/10 text-gray-400 border border-gray-500/20";
   }
 }
 
@@ -54,27 +54,27 @@ export default async function ClientDashboardPage() {
   return (
     <div className="space-y-10 py-8">
       <div className="space-y-4">
-        <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm transition dark:border-slate-800 dark:bg-slate-950">
-          <h1 className="text-3xl font-semibold text-slate-950 dark:text-white">Mon espace client</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <div className="rounded-3xl border border-border bg-card p-8 shadow-sm transition">
+          <h1 className="text-3xl font-semibold text-card-foreground">Mon espace client</h1>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
             Suivez vos demandes de service, consultez l’historique et lancez un nouveau projet avec notre équipe.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total des demandes</p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">{totalRequests}</p>
+            <div className="rounded-3xl border border-border bg-muted p-5">
+              <p className="text-sm font-medium text-muted-foreground">Total des demandes</p>
+              <p className="mt-3 text-3xl font-semibold text-foreground">{totalRequests}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Dernière demande</p>
-              <p className="mt-3 text-lg font-semibold text-slate-900 dark:text-white">
+            <div className="rounded-3xl border border-border bg-muted p-5">
+              <p className="text-sm font-medium text-muted-foreground">Dernière demande</p>
+              <p className="mt-3 text-lg font-semibold text-foreground">
                 {lastRequest ? lastRequest.title : "Aucune demande"}
               </p>
             </div>
-            <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Action rapide</p>
+            <div className="rounded-3xl border border-border bg-muted p-5">
+              <p className="text-sm font-medium text-muted-foreground">Action rapide</p>
               <a
-                href={appPath("/client/services")}
-                className="mt-3 inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                href={appPath("/services")}
+                className="mt-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-200"
               >
                 Créer une demande
               </a>
@@ -90,33 +90,33 @@ export default async function ClientDashboardPage() {
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm transition dark:border-slate-800 dark:bg-slate-950"
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm transition"
             >
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{item.label}</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-900 dark:text-white">{item.value}</p>
+              <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+              <p className="mt-3 text-2xl font-semibold text-foreground">{item.value}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm transition dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-3xl border border-border bg-card p-8 shadow-sm transition">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">Demandes récentes</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <h2 className="text-2xl font-semibold text-card-foreground">Demandes récentes</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Suivez l’avancement de vos demandes et consultez les détails rapidement.
             </p>
           </div>
           <a
-            href={appPath("/client/services")}
-            className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            href={appPath("/services")}
+            className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-200"
           >
             Nouvelle demande
           </a>
         </div>
 
         {requests.length === 0 ? (
-          <div className="mt-8 rounded-3xl border border-dashed border-slate-300/70 bg-slate-50 p-8 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+          <div className="mt-8 rounded-3xl border border-dashed border-border bg-muted p-8 text-sm text-muted-foreground">
             Vous n’avez pas encore de demande. Utilisez le bouton ci-dessus pour exprimer votre besoin.
           </div>
         ) : (
@@ -124,12 +124,12 @@ export default async function ClientDashboardPage() {
             {requests.map((request) => (
               <div
                 key={request.id}
-                className="rounded-3xl border border-slate-200/80 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900"
+                className="rounded-3xl border border-border bg-muted p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{request.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <h3 className="text-lg font-semibold text-foreground">{request.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {request.description}
                     </p>
                   </div>
@@ -141,7 +141,7 @@ export default async function ClientDashboardPage() {
                     {getStatusLabel(request.status)}
                   </span>
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <span>
                     Créée le {new Date(request.created_at).toLocaleDateString("fr-FR", {
                       day: "2-digit",

@@ -385,13 +385,5 @@ export interface ProjectItem {
   };
 }
 
-export type UserRole = "client" | "architect" | "site_manager" | "admin";
 
-export interface UserRoleAssignment {
-  id: string;
-  user_id: string;
-  role: UserRole;
-  assigned_at: string;
-  assigned_by?: string;
-}
 

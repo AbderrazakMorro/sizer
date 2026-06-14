@@ -17,8 +17,15 @@ export async function getUserRoles(
     return [];
   }
 
-  return (data || []).map((row: any) => row.role as UserRole);
+  return (data || [])
+    .map((row: any) => String(row.role ?? "").trim())
+    // Normalize common casing differences; Supabase typically stores exact values,
+    // but we harden the check to prevent access issues.
+    .map((role: string) =>
+      (role.toLowerCase() === "admin" ? "admin" : role)
+    ) as UserRole[];
 }
+
 
 /**
  * Checks if a user has a specific role

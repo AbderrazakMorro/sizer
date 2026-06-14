@@ -256,12 +256,17 @@ function SidebarContent({
       items.push(
         {
           name: tNav("clientDashboard"),
-          href: appPath("/client"),
+          href: appPath("/portal"),
           icon: LayoutDashboard,
         },
         {
+          name: "Mes projets",
+          href: appPath("/mes-projets"),
+          icon: FolderKanban,
+        },
+        {
           name: tNav("requestServices"),
-          href: appPath("/client/services"),
+          href: appPath("/services"),
           icon: FolderKanban,
           onClick: onServiceRequestClick,
         }
@@ -668,12 +673,17 @@ export default function AppLayoutClient({
       items.push(
         {
           name: tNav("clientDashboard"),
-          href: appPath("/client"),
+          href: appPath("/portal"),
           icon: LayoutDashboard,
         },
         {
+          name: "Mes projets",
+          href: appPath("/mes-projets"),
+          icon: FolderKanban,
+        },
+        {
           name: tNav("requestServices"),
-          href: appPath("/client/services"),
+          href: appPath("/services"),
           icon: FolderKanban,
           onClick: () => setServiceRequestModalOpen(true),
         }

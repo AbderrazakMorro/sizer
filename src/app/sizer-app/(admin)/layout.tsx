@@ -18,7 +18,8 @@ export default async function AdminLayout({
 
   const isAdmin = await hasRole(supabase, user.id, "admin");
   if (!isAdmin) {
-    // If not admin, redirect to internal dashboard or client depending on role
+    // Keep behavior but avoid any ambiguous “User not allowed” output paths
+    // by ensuring the redirect always happens from the server layout.
     redirect("/sizer-app/dashboard");
   }
 
