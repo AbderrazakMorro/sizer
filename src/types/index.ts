@@ -129,6 +129,21 @@ export interface ServiceRequest {
   estimated_budget?: number | null;
   estimated_duration_days?: number | null;
   admin_notes?: string | null;
+  // Enriched service request fields
+  phone?: string | null;
+  client_budget?: number | null;
+  custom_item_image_url?: string | null;
+  custom_item_image_asset_id?: string | null;
+  prototype_project_id?: string | null;
+  // Related data (populated via joins)
+  products?: Array<{
+    id: string;
+    name: string;
+    description?: string;
+    image_url?: string;
+    cost_price?: number;
+    reference_code?: string;
+  }>;
 }
 
 export interface ServiceRequestAssignment {
@@ -143,6 +158,20 @@ export interface ServiceRequestAssignment {
   engineer?: {
     full_name: string;
     email: string;
+  };
+}
+
+export interface ServiceRequestProduct {
+  id: string;
+  service_request_id: string;
+  product_id: string;
+  created_at: string;
+  product?: {
+    name: string;
+    description?: string;
+    image_url?: string;
+    base_cost?: number;
+    currency?: string;
   };
 }
 

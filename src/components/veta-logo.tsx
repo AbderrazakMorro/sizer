@@ -37,7 +37,7 @@ function LogoLight({
       alt={alt}
       width={width}
       height={height}
-      className={cn("h-auto w-auto flex-shrink-0 dark:invert dark:brightness-[2.2]", className)}
+      className={cn("h-auto w-auto flex-shrink-0", className)}
       priority
     />
   );
@@ -62,7 +62,7 @@ function LogoDark({
       alt={alt}
       width={width}
       height={height}
-      className={cn("h-auto w-auto flex-shrink-0 dark:invert dark:brightness-[2.2]", className)}
+      className={cn("h-auto w-auto flex-shrink-0", className)}
       priority
     />
   );

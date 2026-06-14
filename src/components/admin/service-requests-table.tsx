@@ -196,6 +196,13 @@ export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
                   Toutes
                 </Button>
                 <Button
+                  variant={filterStatus === "submitted" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterStatus("submitted")}
+                >
+                  Soumise
+                </Button>
+                <Button
                   variant={
                     filterStatus === "pending_approval" ? "default" : "outline"
                   }
@@ -223,7 +230,7 @@ export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
                 <TableHead>Titre</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Priorité</TableHead>
-                <TableHead>Ingénieurs</TableHead>
+                <TableHead>Architectes</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>

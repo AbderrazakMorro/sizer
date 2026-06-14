@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type {
   AdminServiceRequestView,
@@ -91,10 +92,19 @@ export async function getServiceRequestDetails(requestId: string): Promise<{
       return { success: false, error: "Accès non autorisé" };
     }
 
-    // Fetch service request
-    const { data: request, error: requestError } = await supabase
+    // Fetch service request with client profile information
+    const adminSupabase = getAdminClient();
+    
+    const { data: request, error: requestError } = await adminSupabase
       .from("service_requests")
-      .select("*")
+      .select(`
+        *,
+        client:profiles!service_requests_client_id_fkey(
+          id,
+          full_name,
+          email
+        )
+      `)
       .eq("id", requestId)
       .single();
 
@@ -102,8 +112,8 @@ export async function getServiceRequestDetails(requestId: string): Promise<{
       return { success: false, error: requestError.message };
     }
 
-    // Fetch assignments
-    const { data: assignments, error: assignmentsError } = await supabase
+    // Fetch assignments (using admin client to bypass profiles RLS for name/email)
+    const { data: assignments, error: assignmentsError } = await adminSupabase
       .from("service_request_assignments")
       .select(
         `
@@ -120,10 +130,36 @@ export async function getServiceRequestDetails(requestId: string): Promise<{
       return { success: false, error: assignmentsError.message };
     }
 
+    // Fetch associated products
+    const { data: productLinks, error: productsError } = await supabase
+      .from("service_request_products")
+      .select(
+        `
+        product_id,
+        products (
+          id,
+          name,
+          description,
+          image_url,
+          cost_price,
+          reference_code,
+          category
+        )
+      `
+      )
+      .eq("service_request_id", requestId);
+
+    if (productsError) {
+      console.error("Error fetching products:", productsError);
+    }
+
+    // Transform products data
+    const products = productLinks?.map((link: any) => link.products).filter(Boolean) || [];
+
     return {
       success: true,
       data: {
-        request: request as ServiceRequest,
+        request: { ...request, products } as ServiceRequest,
         assignments: assignments as ServiceRequestAssignment[],
       },
     };
@@ -364,34 +400,63 @@ export async function getAvailableEngineers(): Promise<{
       return { success: false, error: "Accès non autorisé" };
     }
 
-    // Get users with architect or site_manager roles
+    // Get users with architect roles
     const { data: engineerRoles, error: rolesError } = await supabase
       .from("user_roles")
-      .select("user_id")
-      .in("role", ["architect", "site_manager"]);
+      .select("user_id, role")
+      .eq("role", "architect");
 
-    if (rolesError) {
-      return { success: false, error: rolesError.message };
+    if (!engineerRoles || !Array.isArray(engineerRoles)) {
+      return { success: true, data: [] };
     }
 
-    const engineerIds = engineerRoles.map((r) => r.user_id);
+    if (rolesError) {
+      console.error("getAvailableEngineers rolesError:", rolesError);
+      return {
+        success: false,
+        error: (rolesError as any)?.message
+          ? (rolesError as any).message
+          : String(rolesError),
+      };
+    }
+
+    const engineerIds = (engineerRoles ?? []).map((r) => r.user_id);
 
     if (engineerIds.length === 0) {
       return { success: true, data: [] };
     }
 
-    // Get profiles for these users
-    const { data: engineers, error: engineersError } = await supabase
+    const adminSupabase = getAdminClient();
+
+    // Prefer using `profiles`
+    const { data: profiles, error: profilesError } = await adminSupabase
       .from("profiles")
       .select("id, full_name, email")
-      .in("id", engineerIds)
-      .order("full_name");
+      .in("id", engineerIds);
 
-    if (engineersError) {
-      return { success: false, error: engineersError.message };
+    if (profilesError) {
+      console.warn(
+        "getAvailableEngineers: profiles table query failed; returning ids only",
+        profilesError
+      );
+      return {
+        success: true,
+        data: engineerIds.map((id) => ({ id, full_name: "", email: "" })),
+      };
     }
 
-    return { success: true, data: engineers };
+    const profilesById = new Map<string, { full_name: string | null; email: string | null }>();
+    for (const p of profiles ?? []) {
+      profilesById.set(p.id, { full_name: p.full_name, email: p.email });
+    }
+
+    const data = engineerIds.map((id) => ({
+      id,
+      full_name: profilesById.get(id)?.full_name ?? "",
+      email: profilesById.get(id)?.email ?? "",
+    }));
+
+    return { success: true, data };
   } catch (error) {
     console.error("getAvailableEngineers error:", error);
     return {
@@ -401,4 +466,86 @@ export async function getAvailableEngineers(): Promise<{
   }
 }
 
+/**
+ * Get the architect display name from Supabase auth.users.display_name
+ * - first finds architect user_ids from user_roles
+ * - then loads those users from the Supabase auth admin API
+ */
+export async function getArchitectDisplayName(): Promise<{
+  success: boolean;
+  data?: string;
+  error?: string;
+}> {
+
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: "Non authentifié" };
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+
+    const isAdmin = roles?.some((r) => r.role === "admin");
+    if (!isAdmin) {
+      return { success: false, error: "Accès non autorisé" };
+    }
+
+    // Find architect ids
+    const { data: architectRoles, error: architectRolesError } = await supabase
+      .from("user_roles")
+      .select("user_id, role")
+      .eq("role", "architect");
+
+    if (architectRolesError) {
+      return {
+        success: false,
+        error: (architectRolesError as any)?.message
+          ? (architectRolesError as any).message
+          : String(architectRolesError),
+      };
+    }
+
+    const architectUserIds = (architectRoles ?? []).map((r) => r.user_id);
+    if (architectUserIds.length === 0) {
+      return { success: true, data: "" };
+    }
+
+    const adminSupabase = getAdminClient();
+
+    const { data: usersData, error: usersError } = await adminSupabase.auth.admin.listUsers();
+
+    if (usersError) {
+      return {
+        success: false,
+        error: usersError.message || String(usersError),
+      };
+    }
+
+    const users = usersData?.users ?? [];
+    const architectUser = users.find((u: any) =>
+      architectUserIds.includes(u.id)
+    );
+
+    const displayName =
+      (architectUser?.user_metadata?.full_name as string) ??
+      (architectUser?.user_metadata?.display_name as string) ??
+      "";
+    return { success: true, data: displayName };
+  } catch (error) {
+    console.error("getArchitectDisplayName error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Erreur inattendue",
+    };
+  }
+}
+
 // Made with Bob
+

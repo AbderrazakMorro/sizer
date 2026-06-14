@@ -134,6 +134,17 @@ export async function uploadProductImage(params: {
     : `${BUCKET_ASSETS_PREFIX}/${userId}/catalog/${productId}${ext}`;
   const encodedFileName = encodeURIComponent(fileName);
 
+  // Fallback to Base64 data URL in development if B2 keys are not configured
+  if (!process.env.B2_APPLICATION_KEY_ID || !process.env.B2_APPLICATION_KEY) {
+    if (process.env.NODE_ENV !== "production") {
+      const base64 = Buffer.from(buffer).toString("base64");
+      return {
+        url: `data:image/webp;base64,${base64}`,
+        storagePath: `mock-assets/${userId}/catalog/${productId}.webp`,
+      };
+    }
+  }
+
   const auth = await b2Authorize();
   const { uploadUrl, authorizationToken } = await getUploadUrl(auth);
 
@@ -198,6 +209,17 @@ export async function uploadSpaceImage(params: {
   const fileName = `${BUCKET_ASSETS_PREFIX}/${userId}/projects/${projectId}/img/${imageId}${ext}`;
   const encodedFileName = encodeURIComponent(fileName);
 
+  // Fallback to Base64 data URL in development if B2 keys are not configured
+  if (!process.env.B2_APPLICATION_KEY_ID || !process.env.B2_APPLICATION_KEY) {
+    if (process.env.NODE_ENV !== "production") {
+      const base64 = Buffer.from(buffer).toString("base64");
+      return {
+        url: `data:image/webp;base64,${base64}`,
+        storagePath: `mock-assets/${userId}/projects/${projectId}/img/${imageId}.webp`,
+      };
+    }
+  }
+
   const auth = await b2Authorize();
   const { uploadUrl, authorizationToken } = await getUploadUrl(auth);
 
@@ -257,6 +279,17 @@ export async function uploadDocument(params: {
   const ext = extension.startsWith(".") ? extension : `.${extension}`;
   const fileName = `${BUCKET_ASSETS_PREFIX}/${userId}/projects/${projectId}/doc/${documentId}${ext}`;
   const encodedFileName = encodeURIComponent(fileName);
+
+  // Fallback to Base64 data URL in development if B2 keys are not configured
+  if (!process.env.B2_APPLICATION_KEY_ID || !process.env.B2_APPLICATION_KEY) {
+    if (process.env.NODE_ENV !== "production") {
+      const base64 = Buffer.from(buffer).toString("base64");
+      return {
+        url: `data:${mimeType};base64,${base64}`,
+        storagePath: `mock-assets/${userId}/projects/${projectId}/doc/${documentId}${ext}`,
+      };
+    }
+  }
 
   const auth = await b2Authorize();
   const { uploadUrl, authorizationToken } = await getUploadUrl(auth);

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { getSupabaseClient } from "@/lib/supabase";
 import { usePlanCapability } from "@/lib/use-plan-capability";
+import { useAuth } from "@/components/auth-provider";
+import { getArchitectProjectDetail } from "@/app/actions/architect-project-actions";
 import { PageLoading } from "@/components/loaders/page-loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -43,12 +45,14 @@ function ProjectDetailShellContent({
   const t = useTranslations("ProjectDetailPage");
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuth();
   const id = projectId;
   const [project, setProject] = useState<Project | null>(null);
   const [activeProjects, setActiveProjects] = useState<
     { id: string; name: string; status: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [isArchitect, setIsArchitect] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -190,26 +194,49 @@ function ProjectDetailShellContent({
   ]);
 
   async function fetchProject() {
-    if (!id) return;
+    if (!id || !user?.id) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*, client:clients(full_name)")
-      .eq("id", id)
+
+    // Check if user is architect
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
       .single();
 
-    if (error) {
-      toast.error(t("toastLoadError"), { id: "project-load" });
+    const userIsArchitect = roleData?.role === "architect";
+    setIsArchitect(userIsArchitect);
+
+    if (userIsArchitect) {
+      // Use server action for architects
+      const result = await getArchitectProjectDetail(id);
+      if (!result.success) {
+        toast.error(result.error || t("toastLoadError"), { id: "project-load" });
+        setProject(null);
+      } else {
+        setProject(result.data || null);
+      }
     } else {
-      setProject(data);
+      // Admin can use direct query
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*, client:clients(full_name)")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        toast.error(t("toastLoadError"), { id: "project-load" });
+      } else {
+        setProject(data);
+      }
     }
     setLoading(false);
   }
 
   useEffect(() => {
     fetchProject();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run when id changes only
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run when id and user changes only
+  }, [id, user?.id]);
 
   async function fetchActiveProjects() {
     const { data, error } = await supabase

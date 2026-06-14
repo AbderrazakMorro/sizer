@@ -135,6 +135,21 @@ export async function assignRolesToUser(input: {
     const { error: insertError } = await adminClient.from("user_roles").insert(payload);
     if (insertError) return { success: false, error: insertError.message };
 
+    // Keep the user “full profile” consistent with assigned roles.
+    // The HR page uses profiles.full_name + auth user metadata for other flags,
+    // while roles are stored in user_roles. Some parts of the app may also rely on
+    // auth.raw_user_meta_data for role-based behavior, so we mirror roles there.
+    const { error: metaError } = await adminClient.auth.admin.updateUserById(
+      input.userId,
+      {
+        user_metadata: {
+          roles: input.roles,
+        },
+      }
+    );
+
+    if (metaError) return { success: false, error: metaError.message };
+
     revalidatePath("/sizer-app/admin/hr");
     return { success: true };
   } catch (e) {

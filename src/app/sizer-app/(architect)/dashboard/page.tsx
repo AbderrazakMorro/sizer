@@ -321,7 +321,7 @@ export default function DashboardPage() {
         </div>
         <Button
           asChild
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20 animate-glow shadow-lg transition-all hover:scale-105"
+          className="bg-white hover:bg-white/90 text-black shadow-lg transition-all hover:scale-105"
         >
           <Link href={appPath("/projects")}>
             <Plus className="mr-2 h-4 w-4" /> {t("newProject")}

@@ -7,6 +7,8 @@ import { getSupabaseClient } from "@/lib/supabase";
 import { getDemoAccountMessage } from "@/lib/utils";
 import { useAppFormatting } from "@/components/providers/app-formatting-provider";
 import { useOnboardingHighlight } from "@/lib/use-onboarding-highlight";
+import { useAuth } from "@/components/auth-provider";
+import { getArchitectProjects } from "@/app/actions/architect-project-actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -72,6 +74,7 @@ type SortOption = "status" | "created_at" | "end_date";
 export default function ProjectsPage() {
   const t = useTranslations("ProjectsPage");
   const { formatDate } = useAppFormatting();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   useOnboardingHighlight("project", !loading);
@@ -81,6 +84,7 @@ export default function ProjectsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isArchitect, setIsArchitect] = useState(false);
   const supabase = getSupabaseClient();
 
   const handleDeleteClick = (project: Project) => {
@@ -143,23 +147,59 @@ export default function ProjectsPage() {
   }, [projects, search, statusFilter, sortBy]);
 
   const fetchProjects = async () => {
+    if (!user?.id) return;
+    
     setLoading(true);
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*, client:clients(full_name)");
-
-    if (error) {
-      toast.error(t("toastLoadError"), { id: "projects-load" });
+    
+    // Check if user is an architect (not admin)
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+    
+    const userIsArchitect = roleData?.role === "architect";
+    setIsArchitect(userIsArchitect);
+    
+    if (userIsArchitect) {
+      // Use server action for architects
+      const result = await getArchitectProjects();
+      
+      console.log("🎯 Server action result:", result);
+      
+      if (!result.success) {
+        toast.error(result.error || "Erreur lors du chargement des projets");
+        console.error("❌ Error:", result.error, result.debug);
+        setProjects([]);
+      } else {
+        console.log("✅ Projects loaded:", result.data);
+        console.log("🐛 Debug info:", result.debug);
+        setProjects(result.data || []);
+        
+        if (result.data && result.data.length === 0) {
+          toast.info("Aucun projet assigné pour le moment");
+        }
+      }
     } else {
-      setProjects(data || []);
+      // For admins: show all projects
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*, client:clients(full_name)");
+
+      if (error) {
+        toast.error(t("toastLoadError"), { id: "projects-load" });
+      } else {
+        setProjects(data || []);
+      }
     }
+    
     setLoading(false);
   };
 
   useEffect(() => {
     fetchProjects();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run on mount only
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className="space-y-6">
@@ -169,15 +209,17 @@ export default function ProjectsPage() {
             <FolderKanban className="text-primary h-8 w-8 shrink-0" />
             <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           </div>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="w-full sm:w-auto"
-            {...(projects.length > 0 && {
-              "data-onboarding-target": "project",
-            })}
-          >
-            <Plus className="mr-2 h-4 w-4" /> {t("newProject")}
-          </Button>
+          {!isArchitect && (
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="w-full sm:w-auto"
+              {...(projects.length > 0 && {
+                "data-onboarding-target": "project",
+              })}
+            >
+              <Plus className="mr-2 h-4 w-4" /> {t("newProject")}
+            </Button>
+          )}
         </div>
         <p className="text-muted-foreground text-sm">{t("description")}</p>
       </div>
@@ -270,27 +312,29 @@ export default function ProjectsPage() {
                       {project.description}
                     </CardDescription>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0"
-                        aria-label={t("actionsAria")}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t("delete")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {!isArchitect && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0"
+                          aria-label={t("actionsAria")}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(project)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t("delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div className="text-muted-foreground space-y-2 text-sm">
@@ -353,7 +397,7 @@ export default function ProjectsPage() {
                     ? t("emptyNoProjectsDescription")
                     : t("emptyNoResultsDescription")}
                 </p>
-                {projects.length === 0 && (
+                {projects.length === 0 && !isArchitect && (
                   <Button
                     onClick={() => setIsDialogOpen(true)}
                     className="mt-4"
@@ -376,14 +420,16 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      <ProjectDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSuccess={() => {
-          setIsDialogOpen(false);
-          fetchProjects();
-        }}
-      />
+      {!isArchitect && (
+        <ProjectDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onSuccess={() => {
+            setIsDialogOpen(false);
+            fetchProjects();
+          }}
+        />
+      )}
 
       <ConfirmDeleteDialog
         open={!!deleteTarget}

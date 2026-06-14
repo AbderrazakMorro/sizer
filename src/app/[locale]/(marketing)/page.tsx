@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { LandingContactForm } from "./_sections/landing-contact-form";
+import { getAdminClient } from "@/lib/supabase/admin";
+import { ShoppingBag } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -27,6 +29,21 @@ export default async function HomePage({
   setRequestLocale(locale);
 
   const isFr = locale === "fr";
+
+  let products: any[] = [];
+  try {
+    const adminSupabase = getAdminClient();
+    const { data } = await adminSupabase
+      .from("products")
+      .select("*, supplier:suppliers(name)")
+      .order("created_at", { ascending: false })
+      .limit(6);
+    if (data) {
+      products = data;
+    }
+  } catch (error) {
+    console.error("Error fetching products for landing page:", error);
+  }
 
   return (
     <main className="bg-background text-on-surface select-none">
@@ -323,6 +340,100 @@ export default async function HomePage({
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Catalog Section */}
+      <section
+        className="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-low/20 border-t border-outline-variant/10"
+        id="catalogue"
+      >
+        <div className="max-w-screen-2xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16">
+            <div>
+              <h2 className="text-headline-lg font-headline-lg text-on-surface uppercase mb-4 text-3xl sm:text-4xl">
+                {isFr ? "NOTRE CATALOGUE" : "OUR CATALOG"}
+              </h2>
+              <p className="text-body-md font-body-md text-on-surface-variant max-w-md">
+                {isFr
+                  ? "Explorez notre sélection de mobilier, luminaires et objets d'art disponibles pour nos projets."
+                  : "Explore our selection of furniture, lighting, and art objects available for our projects."}
+              </p>
+            </div>
+            <div>
+              <a
+                className="btn-primary flex items-center gap-2 px-6 py-3 text-label-sm font-label-sm uppercase tracking-wider text-xs"
+                href="/sizer-app/catalog"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {isFr ? "VOIR TOUT LE CATALOGUE" : "VIEW FULL CATALOG"}
+              </a>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {products.length === 0 ? (
+              // Fallback Mock products if database is empty
+              [
+                { id: "1", name: "Chaise Ocre", category: "Mobilier", reference_code: "CH-OCR", image_url: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?q=80&w=300&auto=format&fit=crop" },
+                { id: "2", name: "Suspension Laiton", category: "Luminaire", reference_code: "SU-LAI", image_url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=300&auto=format&fit=crop" },
+                { id: "3", name: "Vase Céramique", category: "Décoration", reference_code: "VA-CER", image_url: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?q=80&w=300&auto=format&fit=crop" },
+                { id: "4", name: "Table Basse Noyer", category: "Mobilier", reference_code: "TA-NOY", image_url: "https://images.unsplash.com/photo-1581428982868-e410dd047a90?q=80&w=300&auto=format&fit=crop" },
+                { id: "5", name: "Fauteuil Velours", category: "Mobilier", reference_code: "FA-VEL", image_url: "https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=300&auto=format&fit=crop" },
+                { id: "6", name: "Applique Minimaliste", category: "Luminaire", reference_code: "AP-MIN", image_url: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=300&auto=format&fit=crop" }
+              ].map((product) => (
+                <div key={product.id} className="group bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col justify-between hover:border-primary transition-all duration-300">
+                  <div className="relative aspect-square w-full mb-4 overflow-hidden bg-background">
+                    <img
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={product.image_url}
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-primary uppercase tracking-widest block mb-1">
+                      {product.category}
+                    </span>
+                    <h3 className="text-body-md font-semibold truncate text-on-surface mb-1 uppercase text-sm">
+                      {product.name}
+                    </h3>
+                    <code className="text-[10px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded">
+                      {product.reference_code}
+                    </code>
+                  </div>
+                </div>
+              ))
+            ) : (
+              products.map((product) => (
+                <div key={product.id} className="group bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col justify-between hover:border-primary transition-all duration-300">
+                  <div className="relative aspect-square w-full mb-4 overflow-hidden bg-background flex items-center justify-center">
+                    {product.image_url ? (
+                      <img
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        src={product.image_url}
+                      />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Sans image</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-primary uppercase tracking-widest block mb-1">
+                      {product.category || (isFr ? "Produit" : "Product")}
+                    </span>
+                    <h3 className="text-body-md font-semibold truncate text-on-surface mb-1 uppercase text-sm">
+                      {product.name}
+                    </h3>
+                    {product.reference_code && (
+                      <code className="text-[10px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded">
+                        {product.reference_code}
+                      </code>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

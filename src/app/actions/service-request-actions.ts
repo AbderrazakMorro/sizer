@@ -15,7 +15,28 @@ const ServiceRequestSchema = z.object({
   description: z.string().min(10, "La description est trop courte"),
   dimensions: z.string().optional(),
   constraints: z.string().optional(),
+
+  // Enrichissement
+  phone: z.string().trim().optional().nullable(),
+  client_budget: z
+    .union([z.number(), z.string()])
+    .optional()
+    .nullable()
+    .transform((v) => {
+      if (v === null || v === undefined) return null;
+      if (typeof v === "number") {
+        return Number.isFinite(v) ? v : null;
+      }
+      const parsed = parseFloat(v);
+      return Number.isFinite(parsed) ? parsed : null;
+    }),
+  prototype_project_id: z.string().trim().optional().nullable(),
+  product_ids: z.array(z.string().uuid()).optional().default([]),
+
+  // Image personnalisée: volontairement ignorée pour ce commit
+  custom_item_image_asset_id: z.string().uuid().optional().nullable(),
 });
+
 
 export type ServiceRequestInput = z.infer<typeof ServiceRequestSchema>;
 
@@ -28,8 +49,8 @@ export async function submitServiceRequest(input: ServiceRequestInput) {
     console.log("[ServiceRequest] ▶ Starting for:", validatedData.email);
     // ── 1. Create/retrieve the auth user ────────────────────
     let userId: string;
-    let accessLink: string;
     let isExistingUser = false;
+    let accessLink = "";
     const tempPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10) + "A1!";
 
     const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -106,7 +127,7 @@ export async function submitServiceRequest(input: ServiceRequestInput) {
     }
 
     // ── 3. Insert the service request ────────────────────────────────────────
-    const { error: requestError } = await supabaseAdmin
+    const { data: insertedRequest, error: requestError } = await supabaseAdmin
       .from("service_requests")
       .insert({
         client_id: userId,
@@ -115,15 +136,57 @@ export async function submitServiceRequest(input: ServiceRequestInput) {
         dimensions: validatedData.dimensions || null,
         constraints: validatedData.constraints || null,
         status: "submitted",
-      });
 
-    if (requestError) {
-      console.error("[ServiceRequest] service_requests insert error:", requestError);
+        // Enrichissement
+        phone: validatedData.phone || null,
+        client_budget: validatedData.client_budget ?? null,
+        prototype_project_id: validatedData.prototype_project_id || null,
+        // custom_item_image_asset_id intentionally skipped for now
+      })
+      .select("id")
+      .single();
+
+    if (requestError || !insertedRequest?.id) {
+
+      console.error(
+        "[ServiceRequest] service_requests insert error:",
+        requestError
+      );
       throw new Error(
-        "Erreur lors de l'enregistrement de la demande : " + requestError.message
+        "Erreur lors de l'enregistrement de la demande : " +
+          (requestError?.message ?? "Unknown error")
       );
     }
-    console.log("[ServiceRequest] ✅ service_request inserted for userId:", userId);
+    console.log(
+      "[ServiceRequest] ✅ service_request inserted for userId:",
+      userId
+    );
+
+    // ── 3.5 Link selected products (catalog items) ──────────────────────────
+    const productIds = validatedData.product_ids ?? [];
+
+    if (productIds.length > 0) {
+      const { error: productsLinkError } = await supabaseAdmin
+        .from("service_request_products")
+        .insert(
+          productIds.map((productId) => ({
+            service_request_id: insertedRequest.id,
+            product_id: productId,
+          }))
+        );
+
+      if (productsLinkError) {
+        console.error(
+          "[ServiceRequest] service_request_products insert error:",
+          productsLinkError
+        );
+        throw new Error(
+          "Erreur lors du rattachement des produits: " +
+            productsLinkError.message
+        );
+      }
+    }
+
 
     // ── 4. Create a linked draft project (non-blocking) ──────────────────────
     const { error: projectError } = await supabaseAdmin.from("projects").insert({

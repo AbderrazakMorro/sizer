@@ -442,11 +442,13 @@ function SidebarContent({
             collapsed && "justify-center"
           )}
         >
-          <SizerLogo
-            height={48}
-            showWordmark={!collapsed}
-            className="text-foreground"
-          />
+          <div className="brightness-0 invert">
+            <SizerLogo
+              height={48}
+              showWordmark={!collapsed}
+              className="text-foreground"
+            />
+          </div>
         </Link>
       </div>
 
