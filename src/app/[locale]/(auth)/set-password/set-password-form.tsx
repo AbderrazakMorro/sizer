@@ -53,33 +53,43 @@ export function SetPasswordForm() {
   useEffect(() => {
     const supabase = getSupabaseClient();
 
-    // Check if there is an access_token/refresh_token in the URL hash
-    const hash = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
+    // Supabase recovery links may provide tokens either in the URL hash
+    // (#access_token=...&refresh_token=...) OR as query parameters
+    // (?access_token=...&refresh_token=...).
     let isSettingSession = false;
 
-    if (hash) {
-      const params = new URLSearchParams(hash);
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
-      if (accessToken && refreshToken) {
-        isSettingSession = true;
-        setCheckingSession(true);
-        supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-          .then(({ data }: { data: any }) => {
-            if (data?.session) {
-              setHasSession(true);
-            } else {
-              setHasSession(false);
-            }
-          })
-          .catch(() => {
+    const url = new URL(window.location.href);
+
+    const hash = window.location.hash?.slice(1) ?? "";
+    const hashParams = hash ? new URLSearchParams(hash) : new URLSearchParams();
+
+    const queryParams = url.searchParams ?? new URLSearchParams();
+
+    const accessToken =
+      hashParams.get("access_token") ?? queryParams.get("access_token");
+    const refreshToken =
+      hashParams.get("refresh_token") ?? queryParams.get("refresh_token");
+
+    if (accessToken && refreshToken) {
+      isSettingSession = true;
+      setCheckingSession(true);
+      supabase.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ data }: { data: any }) => {
+          if (data?.session) {
+            setHasSession(true);
+          } else {
             setHasSession(false);
-          })
-          .finally(() => {
-            setCheckingSession(false);
-          });
-      }
+          }
+        })
+        .catch(() => {
+          setHasSession(false);
+        })
+        .finally(() => {
+          setCheckingSession(false);
+        });
     }
+
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
@@ -109,7 +119,12 @@ export function SetPasswordForm() {
       }
 
       toast.success(isFr ? "Mot de passe défini avec succès !" : "Password set successfully!");
-      
+      toast.success(
+        isFr
+          ? "Vous allez être redirigé vers votre espace..."
+          : "Redirecting you to your workspace..."
+      );
+
       // Redirect to dashboard
       window.location.href = appPath("/dashboard");
     } catch (error: any) {
@@ -150,7 +165,7 @@ export function SetPasswordForm() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button asChild className="w-full">
-            <Link href="/sign-in">
+            <Link href={`/${locale}/sign-in`}>
               {isFr ? "Aller à la page de connexion" : "Go to Sign In"}
             </Link>
           </Button>
@@ -229,7 +244,7 @@ export function SetPasswordForm() {
       </CardContent>
       <CardFooter>
         <Link
-          href="/"
+          href={`/${locale}`}
           className="text-muted-foreground hover:text-foreground text-center text-sm transition-colors w-full"
         >
           {isFr ? "Retour à l'accueil" : "Back to Home"}

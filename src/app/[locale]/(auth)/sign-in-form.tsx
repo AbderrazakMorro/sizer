@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -42,7 +43,18 @@ export function SignInForm() {
 
   const [loading, setLoading] = useState(false);
   const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [step, setStep] = useState<"email" | "verify">("email");
   const [resetLoading, setResetLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+
+
+  // Keep locale-specific copy in sync with the inline forgot-password flow.
+  // OTP verification redirects the user to the generated recovery URL.
+
+
 
   const signInSchema = z.object({
     email: z.string().email(t("emailInvalid")),
@@ -102,30 +114,77 @@ export function SignInForm() {
     }
   }
 
-  async function handleResetPassword(e: React.FormEvent) {
+  async function handleResetPasswordRequest(e: React.FormEvent) {
     e.preventDefault();
+    setOtpError(null);
+    setOtp("");
+
     if (!emailTrimmed || !isEmailValid) {
-      toast.error(isFr ? "Veuillez entrer une adresse email valide" : "Please enter a valid email address");
+      toast.error(
+        isFr ? "Veuillez entrer une adresse email valide" : "Please enter a valid email address"
+      );
       return;
     }
+
     setResetLoading(true);
     try {
       const { sendResetPasswordEmail } = await import("@/app/actions/auth-actions");
       const result = await sendResetPasswordEmail(emailTrimmed, locale);
       if (result.success) {
         toast.success(
-          isFr 
-            ? "Si l'adresse email existe, un lien de réinitialisation a été envoyé." 
-            : "If the email address exists, a reset link has been sent."
+          isFr
+            ? "Si l'adresse email existe, un code de réinitialisation a été envoyé."
+            : "If the email address exists, a reset code has been sent."
         );
-        setIsForgotPasswordMode(false);
+        setOtpSent(true);
+        setStep("verify");
       } else {
-        toast.error(result.error || (isFr ? "Une erreur est survenue" : "An error occurred"));
+        toast.error(
+          result.error || (isFr ? "Une erreur est survenue" : "An error occurred")
+        );
       }
     } catch (err: any) {
       toast.error(err.message || (isFr ? "Une erreur est survenue" : "An error occurred"));
     } finally {
       setResetLoading(false);
+    }
+  }
+
+  async function handleVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setOtpError(null);
+
+    const trimmed = otp.trim();
+    if (!/^[0-9]{6}$/.test(trimmed)) {
+      setOtpError(isFr ? "Veuillez entrer un code à 6 chiffres" : "Enter the 6-digit code");
+      return;
+    }
+
+    setVerifyLoading(true);
+    try {
+      const res = await fetch(`/api/auth/reset-password/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailTrimmed, code: trimmed, locale }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setOtpError(data?.error || (isFr ? "Code invalide" : "Invalid code"));
+        return;
+      }
+
+      const recoveryUrl = data?.recoveryUrl;
+      if (!recoveryUrl) {
+        setOtpError(isFr ? "Impossible de générer le lien" : "Unable to generate link");
+        return;
+      }
+
+      window.location.href = recoveryUrl;
+    } catch (err: any) {
+      setOtpError(err?.message || (isFr ? "Une erreur est survenue" : "An error occurred"));
+    } finally {
+      setVerifyLoading(false);
     }
   }
 
@@ -150,43 +209,134 @@ export function SignInForm() {
       <CardContent>
         <Form {...form}>
           {isForgotPasswordMode ? (
-            <form onSubmit={(e) => void handleResetPassword(e)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("emailLabel")}</FormLabel>
-                    <FormControl>
+            <div className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  if (step === "email") return void handleResetPasswordRequest(e);
+                  return void handleVerifyCode(e);
+                }}
+                className="space-y-4"
+              >
+                {step === "email" ? (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("emailLabel")}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder={t("emailPlaceholder")}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                      <Button
+                        type="submit"
+                        size="lg"
+                        className="bg-gold text-white hover:bg-gold/80"
+                        disabled={resetLoading || !isEmailValid}
+                      >
+                        {resetLoading
+                          ? isFr
+                            ? "Envoi en cours..."
+                            : "Sending..."
+                          : isFr
+                          ? "Envoyer le code"
+                          : "Send code"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        onClick={() => {
+                          setIsForgotPasswordMode(false);
+                          setStep("email");
+                        }}
+                      >
+                        {isFr ? "Retour" : "Back"}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-1">
+                      <div className="text-sm text-muted-foreground">
+                        {isFr
+                          ? "Nous avons envoyé un code à 6 chiffres à votre email."
+                          : "We sent a 6-digit code to your email."}
+                      </div>
+
+                      {otpSent ? (
+                        <div className="text-sm mt-2">
+                          <div className="font-medium text-foreground">
+                            {isFr ? "Étape suivante" : "Next step"}
+                          </div>
+                          <div className="text-muted-foreground">
+                            {isFr
+                              ? "1) Saisissez le code à 6 chiffres ci-dessous.\n2) Cliquez « Vérifier le code » pour accéder à la page de création d’un nouveau mot de passe."
+                              : "1) Enter the 6-digit code below.\n2) Click \"Verify code\" to go to the page where you can set a new password."}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{isFr ? "Code" : "Code"}</label>
                       <Input
-                        type="email"
-                        placeholder={t("emailPlaceholder")}
-                        {...field}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="123456"
+                        value={otp}
+                        onChange={(e) => {
+                          const next = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setOtp(next);
+                        }}
+                        className="tracking-[0.4em] text-center"
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                      {otpError ? (
+                        <div className="text-sm text-destructive">{otpError}</div>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                      <Button
+                        type="submit"
+                        size="lg"
+                        className="bg-gold text-white hover:bg-gold/80"
+                        disabled={verifyLoading}
+                      >
+                        {verifyLoading
+                          ? isFr
+                            ? "Vérification..."
+                            : "Verifying..."
+                          : isFr
+                          ? "Vérifier le code"
+                          : "Verify code"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        onClick={() => {
+                          setStep("email");
+                          setOtp("");
+                          setOtpError(null);
+                        }}
+                      >
+                        {isFr ? "Changer" : "Change"}
+                      </Button>
+                    </div>
+                  </>
                 )}
-              />
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="bg-gold text-white hover:bg-gold/80"
-                  disabled={resetLoading || !isEmailValid}
-                >
-                  {resetLoading ? (isFr ? "Envoi en cours..." : "Sending...") : (isFr ? "Envoyer le lien" : "Send link")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setIsForgotPasswordMode(false)}
-                >
-                  {isFr ? "Retour" : "Back"}
-                </Button>
-              </div>
-            </form>
+              </form>
+            </div>
           ) : (
             <form
               onSubmit={(e) => {

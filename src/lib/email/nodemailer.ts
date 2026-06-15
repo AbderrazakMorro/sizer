@@ -275,7 +275,69 @@ export function getExistingUserServiceRequestEmailHtml(name: string, siteUrl: st
  * Legacy function - kept for backward compatibility
  * @deprecated Use getNewUserServiceRequestEmailHtml or getExistingUserServiceRequestEmailHtml instead
  */
+export function getPasswordResetOtpEmailHtml(name: string, code: string, siteUrl: string, locale: string = "fr") {
+  const isFr = locale === "fr";
+
+  // Keep OTP email pure: no link.
+  return `
+    <!DOCTYPE html>
+    <html lang="${isFr ? "fr" : "en"}">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${getEmailStyles()}</style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <a href="#" class="logo">V E T A</a>
+        </div>
+
+        <div class="content">
+          <div class="greeting">
+            ${isFr ? `Bonjour ${name || ""},` : `Hello ${name || ""},`}
+          </div>
+
+          <p>
+            ${isFr
+              ? "Voici votre code de réinitialisation de mot de passe."
+              : "Here is your password reset code."}
+          </p>
+
+          <div class="info-box" style="text-align:center;">
+            <div style="font-size:13px; color:#555555; margin-bottom:8px;">${isFr ? "Code à 6 chiffres" : "6-digit code"}</div>
+            <div style="font-size:34px; letter-spacing:6px; font-weight:800; color:#1c1c1c;">
+              ${code}
+            </div>
+            <div style="font-size:13px; color:#888888; margin-top:12px;">
+              ${isFr ? "Expire dans 15 minutes." : "Expires in 15 minutes."}
+            </div>
+          </div>
+
+          <p style="font-size:13px; color:#888888;">
+            ${isFr
+              ? "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email."
+              : "If you did not request this, you can ignore this email."}
+          </p>
+
+          <p style="margin-top: 30px;">${isFr ? "L'équipe Veta" : "The Veta team"}</p>
+        </div>
+
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} Veta. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * Legacy function - kept for backward compatibility
+ * @deprecated Use getNewUserServiceRequestEmailHtml or getExistingUserServiceRequestEmailHtml instead
+ */
 export function getWelcomeEmailHtml(name: string, accessLink: string, siteUrl?: string) {
   return getNewUserServiceRequestEmailHtml(name, accessLink, siteUrl || "http://localhost:3000");
 }
+
 
