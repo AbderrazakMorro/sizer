@@ -53,12 +53,21 @@ export function SetPasswordForm() {
   useEffect(() => {
     const supabase = getSupabaseClient();
 
+    const url = new URL(window.location.href);
+    const resetSessionId = url.searchParams.get("reset_session_id");
+
+    // If we are in our custom OTP flow, we should NOT require a Supabase session.
+    // The backend validates reset_session_id server-side.
+    if (resetSessionId) {
+      setHasSession(true);
+      setCheckingSession(false);
+      return;
+    }
+
     // Supabase recovery links may provide tokens either in the URL hash
     // (#access_token=...&refresh_token=...) OR as query parameters
     // (?access_token=...&refresh_token=...).
     let isSettingSession = false;
-
-    const url = new URL(window.location.href);
 
     const hash = window.location.hash?.slice(1) ?? "";
     const hashParams = hash ? new URLSearchParams(hash) : new URLSearchParams();
@@ -90,7 +99,6 @@ export function SetPasswordForm() {
         });
     }
 
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         if (session) {
@@ -106,26 +114,43 @@ export function SetPasswordForm() {
     return () => subscription.unsubscribe();
   }, []);
 
+
   async function onSubmit(values: FormValues) {
     setLoading(true);
     try {
-      const supabase = getSupabaseClient();
-      const { error } = await supabase.auth.updateUser({
-        password: values.password,
-      });
+      const url = new URL(window.location.href);
+      const reset_session_id = url.searchParams.get("reset_session_id") || "";
 
-      if (error) {
-        throw error;
+      if (!reset_session_id) {
+        toast.error(
+          isFr
+            ? "Lien de réinitialisation invalide"
+            : "Invalid reset link"
+        );
+        return;
       }
 
-      toast.success(isFr ? "Mot de passe défini avec succès !" : "Password set successfully!");
+      const res = await fetch(`/api/auth/reset-password/set`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reset_session_id, password: values.password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data?.error || (isFr ? "Impossible de définir le mot de passe" : "Unable to set password"));
+        return;
+      }
+
+      toast.success(
+        isFr ? "Mot de passe défini avec succès !" : "Password set successfully!"
+      );
       toast.success(
         isFr
           ? "Vous allez être redirigé vers votre espace..."
           : "Redirecting you to your workspace..."
       );
 
-      // Redirect to dashboard
       window.location.href = appPath("/dashboard");
     } catch (error: any) {
       const message = error instanceof Error ? error.message : (isFr ? "Une erreur est survenue" : "An error occurred");
@@ -134,6 +159,7 @@ export function SetPasswordForm() {
       setLoading(false);
     }
   }
+
 
   if (checkingSession) {
     return (
@@ -165,7 +191,9 @@ export function SetPasswordForm() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button asChild className="w-full">
-            <Link href={`/${locale}/sign-in`}>
+            <Link
+              href={`/${locale}/sign-in` as any}
+            >
               {isFr ? "Aller à la page de connexion" : "Go to Sign In"}
             </Link>
           </Button>
@@ -244,7 +272,7 @@ export function SetPasswordForm() {
       </CardContent>
       <CardFooter>
         <Link
-          href={`/${locale}`}
+          href={(`/${locale}` as unknown) as any}
           className="text-muted-foreground hover:text-foreground text-center text-sm transition-colors w-full"
         >
           {isFr ? "Retour à l'accueil" : "Back to Home"}

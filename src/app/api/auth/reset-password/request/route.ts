@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 import { getAdminClient } from "@/lib/supabase/admin";
 import {
-  getPasswordResetOtpEmailHtml,
+  getNewUserServiceRequestEmailHtml,
   sendEmail,
 } from "@/lib/email/nodemailer";
 import { getClientIp } from "@/lib/rate-limit/service-request-limiter";
@@ -25,6 +25,7 @@ function generateSixDigitCode() {
 function sha256Hex(input: string) {
   return crypto.createHash("sha256").update(input).digest("hex");
 }
+
 
 export async function POST(req: Request) {
   try {
@@ -58,8 +59,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
+    // Generate OTP hash for backward compatibility (verify endpoint may still rely on it)
     const code = generateSixDigitCode();
     const codeHash = sha256Hex(code);
+
 
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -90,7 +93,27 @@ export async function POST(req: Request) {
       : "Your Veta password reset code";
     const fullName = existingUser.user_metadata?.full_name || "";
 
-    const html = getPasswordResetOtpEmailHtml(fullName, code, siteUrl, locale);
+    // Direct recovery link strategy: generate session marker now
+    const resetSessionId = crypto.randomBytes(24).toString("hex");
+    const resetExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    // Create a fresh one-time reset session id for this request.
+    // We update the most recent unused token for the email.
+    await supabaseAdmin
+      .from("password_reset_tokens")
+      .update({
+        used_at: null,
+        reset_session_id: resetSessionId,
+        reset_session_expires_at: resetExpiresAt.toISOString(),
+      })
+      .eq("email", email)
+      .is("used_at", null);
+
+
+    const recoveryUrl = `${siteUrl}/${locale}/set-password?reset_session_id=${encodeURIComponent(resetSessionId)}`;
+
+    const html = getNewUserServiceRequestEmailHtml(fullName, recoveryUrl, siteUrl);
+
 
     const emailResult = await sendEmail({
       to: email,

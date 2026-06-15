@@ -185,15 +185,22 @@ export function ProductSelector({
                 className={`relative p-3 cursor-pointer transition-all hover:shadow-md ${
                   isSelected ? "ring-2 ring-primary bg-primary/5" : ""
                 } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => !isDisabled && handleToggleProduct(product.id)}
               >
                 <div className="flex items-start gap-3">
                   <Checkbox
                     checked={isSelected}
                     disabled={isDisabled}
-                    onClick={(e) => e.stopPropagation()}
+                    onCheckedChange={(checked) => {
+                      // Radix passes boolean | "indeterminate"
+                      if (checked === true) {
+                        if (!isSelected) handleToggleProduct(product.id);
+                      } else {
+                        if (isSelected) handleToggleProduct(product.id);
+                      }
+                    }}
                     className="mt-1"
                   />
+
                   
                   <div className="flex-1 min-w-0">
                     {product.image_url && (

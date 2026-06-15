@@ -69,34 +69,16 @@ export async function POST(req: Request) {
       throw new Error(updateError.message);
     }
 
-    // Generate a signed recovery link URL via Supabase Admin recovery link,
-    // but do NOT rely on Supabase email delivery.
-    // We instead embed the session marker in a query/hash so /set-password can accept it.
-    // Current /set-password page uses Supabase session tokens in URL hash.
-    // Here we generate the Supabase recovery URL server-side.
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: "recovery",
-      email,
-      options: {
-        redirectTo: `${siteUrl}/${locale}/set-password`,
-      },
-    });
+    // Strategy B: OTP-based one-time session marker.
+    // We do NOT generate a Supabase recovery link.
+    // Instead, we return a link to our /set-password page with the one-time reset_session_id.
 
-    if (linkError) {
-      throw new Error(linkError.message);
-    }
+    const setPasswordUrl = `${siteUrl}/${locale}/set-password?reset_session_id=${encodeURIComponent(
+      resetSessionId
+    )}`;
 
-    const actionLink = linkData?.properties?.action_link;
-    if (!actionLink) {
-      return NextResponse.json(
-        { error: "Unable to generate recovery link" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({ success: true, recoveryUrl: setPasswordUrl });
 
-    // We rely on Supabase recovery link to provide access_token/refresh_token
-    // so /set-password can call supabase.auth.setSession.
-    return NextResponse.json({ success: true, recoveryUrl: actionLink });
   } catch (err: any) {
     console.error("reset-password/verify error:", err);
     return NextResponse.json(

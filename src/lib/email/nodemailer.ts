@@ -39,7 +39,8 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   const transporter = getTransporter();
 
   const cleanEnvVar = (val: string | undefined) => val ? val.replace(/^["']|["']$/g, "") : "";
-  const from = cleanEnvVar(process.env.SMTP_FROM) || '"Veta" <veta.design.app@gmail.com>';
+  const from = cleanEnvVar(process.env.SMTP_FROM) || '"Sizer" <sizer.design.app@gmail.com>';
+
 
   try {
     const info = await transporter.sendMail({
