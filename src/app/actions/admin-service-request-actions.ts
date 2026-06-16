@@ -254,10 +254,34 @@ export async function assignEngineersToRequest(
   try {
     const supabase = await createClient();
 
+    // Verify admin session before calling SECURITY DEFINER RPC
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: "Non authentifié" };
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+
+    const isAdmin = roles?.some((r) => r.role === "admin");
+    if (!isAdmin) {
+      return { success: false, error: "Accès non autorisé" };
+    }
+
+    // Only send the leadEngineerId if it is actually in the selected list
+    const resolvedLeadId =
+      leadEngineerId && engineerIds.includes(leadEngineerId)
+        ? leadEngineerId
+        : null;
+
     const { error } = await supabase.rpc("assign_engineers_to_request", {
       p_request_id: requestId,
       p_engineer_ids: engineerIds,
-      p_lead_engineer_id: leadEngineerId || null,
+      p_lead_engineer_id: resolvedLeadId,
     });
 
     if (error) {

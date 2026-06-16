@@ -102,7 +102,14 @@ export function useOnboardingStatus(): UseOnboardingStatusResult {
 
   const result = dataWithWelcome
     ? getOnboardingStepsStatus(dataWithWelcome)
-    : { steps: [], firstPendingStepId: null, allComplete: true };
+    : {
+        // Stable fallback to avoid mounting/unmounting hook-using children
+        // across rapid renders (e.g. React strict mode).
+        steps: [],
+        firstPendingStepId: null,
+        allComplete: false,
+      };
+
 
   return {
     steps: result.steps,

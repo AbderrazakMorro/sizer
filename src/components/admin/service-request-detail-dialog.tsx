@@ -240,11 +240,16 @@ export function ServiceRequestDetailDialog({
   };
 
   const toggleEngineer = (engineerId: string) => {
-    setSelectedEngineers((prev) =>
-      prev.includes(engineerId)
-        ? prev.filter((id) => id !== engineerId)
-        : [...prev, engineerId]
-    );
+    setSelectedEngineers((prev) => {
+      if (prev.includes(engineerId)) {
+        // If unchecking the lead, also clear the lead selection
+        if (leadEngineer === engineerId) {
+          setLeadEngineer("");
+        }
+        return prev.filter((id) => id !== engineerId);
+      }
+      return [...prev, engineerId];
+    });
   };
 
   if (loading) {
@@ -270,8 +275,9 @@ export function ServiceRequestDetailDialog({
   }
 
   const canApprove = ["submitted", "pending_approval"].includes(request.status);
-  const canAssign = ["approved", "assigned"].includes(request.status);
+  const canAssign = !["rejected", "cancelled", "completed", "in_progress"].includes(request.status);
   const canConvert = ["approved", "assigned"].includes(request.status) && !request.converted_to_project_id;
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
