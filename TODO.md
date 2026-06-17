@@ -1,12 +1,6 @@
 # TODO
-
-- [x] Inspect reset password flow: request/verify/set routes + set-password front behavior
-- [x] Fix set-password UI: when `reset_session_id` is present, do not require Supabase access_token/refresh_token session
-- [ ] (next) Run local dev / build to ensure no TS/ESLint errors
-- [ ] (next) Manually test email link flow end-to-end:
-  - Request reset
-  - Verify via OTP
-  - Click link
-  - Set new password
-- [ ] (next) If needed, add better UX for expired `reset_session_id` (server returns 400 -> toast)
+- [ ] Fix admin clients visibility (clients not displayed although they exist)
+  - [ ] Update `getAdminClients()` to ensure query uses correct columns and ordering
+  - [ ] Add debug logging (admin query success + count)
+  - [ ] Ensure response shape matches `ClientsTable` expectations
 
