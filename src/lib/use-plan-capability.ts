@@ -1,30 +1,16 @@
 "use client";
 
-import { useAuth } from "@/components/auth-provider";
-import { getPlanConfigForDisplay } from "@/lib/plan-copy";
-import {
-  checkCapability,
-  type CheckCapabilityOptions,
-  type PlanFeatureKey,
-} from "@/lib/plan-capability";
+import type { CheckCapabilityOptions, PlanFeatureKey } from "@/lib/plan-capability";
 
 /**
- * Indica si la capacidad está disponible para la cuenta actual según su plan.
- * Usa el config efectivo de la sesión; si no hay o aún carga, usa BASE (restrictivo).
- *
- * @param featureKey - Clave de capacidad (consumible o modalidad).
- * @param options - minModality: exige al menos este nivel (ej. "plus" para filtros, "full" para white label).
- *
- * @example
- * const canShowTab = usePlanCapability("purchase_orders");
- * const canUseBudgetFilter = usePlanCapability("pdf_export_mode", { minModality: "plus" });
- * const canExportWhiteLabel = usePlanCapability("pdf_export_mode", { minModality: "full" });
+ * Plan limits disabled — all features are always available.
+ * @param _featureKey - Unused (all capabilities granted).
+ * @param _options - Unused.
  */
 export function usePlanCapability(
-  featureKey: PlanFeatureKey,
-  options?: CheckCapabilityOptions
+  _featureKey: PlanFeatureKey,
+  _options?: CheckCapabilityOptions
 ): boolean {
-  const { effectivePlan } = useAuth();
-  const config = effectivePlan?.config ?? getPlanConfigForDisplay("BASE");
-  return checkCapability(config, featureKey, options);
+  // Plan limits disabled: full access for all users
+  return true;
 }

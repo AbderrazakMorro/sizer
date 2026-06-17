@@ -47,65 +47,210 @@ interface ServiceRequestsTableProps {
   requests: AdminServiceRequestView[];
 }
 
-const statusConfig = {
+// ── Status colour palette ───────────────────────────────────────────────────
+const statusConfig: Record<
+  string,
+  { label: string; icon: React.ElementType; bg: string; text: string; border: string; dot: string }
+> = {
   submitted: {
     label: "Soumise",
     icon: Clock,
-    variant: "secondary" as const,
+    bg: "rgba(99,102,241,0.10)",
+    text: "#818cf8",
+    border: "rgba(99,102,241,0.25)",
+    dot: "#818cf8",
   },
   pending_approval: {
     label: "En attente",
     icon: AlertCircle,
-    variant: "warning" as const,
+    bg: "rgba(245,158,11,0.10)",
+    text: "#f59e0b",
+    border: "rgba(245,158,11,0.28)",
+    dot: "#f59e0b",
   },
   approved: {
     label: "Approuvée",
     icon: CheckCircle,
-    variant: "success" as const,
+    bg: "rgba(34,197,94,0.10)",
+    text: "#22c55e",
+    border: "rgba(34,197,94,0.25)",
+    dot: "#22c55e",
   },
   assigned: {
     label: "Assignée",
     icon: Users,
-    variant: "default" as const,
+    bg: "rgba(59,130,246,0.10)",
+    text: "#3b82f6",
+    border: "rgba(59,130,246,0.25)",
+    dot: "#3b82f6",
   },
   rejected: {
     label: "Rejetée",
     icon: XCircle,
-    variant: "destructive" as const,
+    bg: "rgba(239,68,68,0.10)",
+    text: "#ef4444",
+    border: "rgba(239,68,68,0.25)",
+    dot: "#ef4444",
   },
   in_progress: {
     label: "En cours",
     icon: Clock,
-    variant: "default" as const,
+    bg: "rgba(14,165,233,0.10)",
+    text: "#0ea5e9",
+    border: "rgba(14,165,233,0.25)",
+    dot: "#0ea5e9",
   },
   review: {
     label: "En révision",
     icon: AlertCircle,
-    variant: "secondary" as const,
+    bg: "rgba(168,85,247,0.10)",
+    text: "#a855f7",
+    border: "rgba(168,85,247,0.25)",
+    dot: "#a855f7",
   },
   completed: {
     label: "Terminée",
     icon: CheckCircle,
-    variant: "success" as const,
+    bg: "rgba(16,185,129,0.10)",
+    text: "#10b981",
+    border: "rgba(16,185,129,0.25)",
+    dot: "#10b981",
   },
   cancelled: {
     label: "Annulée",
     icon: XCircle,
-    variant: "destructive" as const,
+    bg: "rgba(107,114,128,0.10)",
+    text: "#9ca3af",
+    border: "rgba(107,114,128,0.22)",
+    dot: "#9ca3af",
   },
   draft: {
     label: "Brouillon",
     icon: Clock,
-    variant: "secondary" as const,
+    bg: "rgba(107,114,128,0.08)",
+    text: "#9ca3af",
+    border: "rgba(107,114,128,0.18)",
+    dot: "#6b7280",
   },
 };
 
-const priorityConfig = {
-  low: { label: "Basse", variant: "secondary" as const },
-  medium: { label: "Moyenne", variant: "default" as const },
-  high: { label: "Haute", variant: "warning" as const },
-  urgent: { label: "Urgente", variant: "destructive" as const },
+// ── Priority colour palette ─────────────────────────────────────────────────
+const priorityConfig: Record<
+  string,
+  { label: string; bg: string; text: string; border: string; dot: string }
+> = {
+  low: {
+    label: "Basse",
+    bg: "rgba(34,197,94,0.08)",
+    text: "#22c55e",
+    border: "rgba(34,197,94,0.20)",
+    dot: "#22c55e",
+  },
+  medium: {
+    label: "Moyenne",
+    bg: "rgba(59,130,246,0.10)",
+    text: "#3b82f6",
+    border: "rgba(59,130,246,0.22)",
+    dot: "#3b82f6",
+  },
+  high: {
+    label: "Haute",
+    bg: "rgba(245,158,11,0.10)",
+    text: "#f59e0b",
+    border: "rgba(245,158,11,0.28)",
+    dot: "#f59e0b",
+  },
+  urgent: {
+    label: "Urgente",
+    bg: "rgba(239,68,68,0.10)",
+    text: "#ef4444",
+    border: "rgba(239,68,68,0.28)",
+    dot: "#ef4444",
+  },
 };
+
+// ── Shared pill component ───────────────────────────────────────────────────
+import React from "react";
+
+function StatusPill({
+  status,
+}: {
+  status: string;
+}) {
+  const cfg = statusConfig[status] ?? {
+    label: status,
+    icon: Clock,
+    bg: "rgba(107,114,128,0.08)",
+    text: "#9ca3af",
+    border: "rgba(107,114,128,0.18)",
+    dot: "#6b7280",
+  };
+  const Icon = cfg.icon;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "3px 10px",
+        borderRadius: 9999,
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: "0.01em",
+        background: cfg.bg,
+        color: cfg.text,
+        border: `1px solid ${cfg.border}`,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <Icon style={{ width: 11, height: 11, flexShrink: 0 }} />
+      {cfg.label}
+    </span>
+  );
+}
+
+function PriorityPill({
+  priority,
+}: {
+  priority: string;
+}) {
+  const cfg = priorityConfig[priority] ?? {
+    label: priority,
+    bg: "rgba(107,114,128,0.08)",
+    text: "#9ca3af",
+    border: "rgba(107,114,128,0.18)",
+    dot: "#6b7280",
+  };
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "3px 10px",
+        borderRadius: 9999,
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: "0.01em",
+        background: cfg.bg,
+        color: cfg.text,
+        border: `1px solid ${cfg.border}`,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: cfg.dot,
+          flexShrink: 0,
+        }}
+      />
+      {cfg.label}
+    </span>
+  );
+}
 
 export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
@@ -246,10 +391,6 @@ export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
                 </TableRow>
               ) : (
                 filteredRequests.map((request) => {
-                  const statusInfo = statusConfig[request.status];
-                  const StatusIcon = statusInfo.icon;
-                  const priorityInfo = priorityConfig[request.priority];
-
                   return (
                     <TableRow key={request.id}>
                       <TableCell>
@@ -273,15 +414,10 @@ export function ServiceRequestsTable({ requests }: ServiceRequestsTableProps) {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={statusInfo.variant}>
-                          <StatusIcon className="mr-1 h-3 w-3" />
-                          {statusInfo.label}
-                        </Badge>
+                        <StatusPill status={request.status} />
                       </TableCell>
                       <TableCell>
-                        <Badge variant={priorityInfo.variant}>
-                          {priorityInfo.label}
-                        </Badge>
+                        <PriorityPill priority={request.priority} />
                       </TableCell>
                       <TableCell>
                         {request.assigned_engineers_count > 0 ? (

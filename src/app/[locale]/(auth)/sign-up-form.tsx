@@ -11,13 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormField,
@@ -28,6 +21,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { pushSignUp } from "@/lib/gtm";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 
 const VALID_PLAN_CODES = ["BASE", "PRO", "STUDIO"] as const;
 type PlanCode = (typeof VALID_PLAN_CODES)[number];
@@ -59,13 +53,21 @@ export function SignUpForm({
       : null;
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanCode>(
     planFromUrl ?? "BASE"
   );
 
   const signUpSchema = z.object({
     email: z.string().email(t("emailInvalid")),
-    password: z.string().min(6, isFr ? "Le mot de passe doit contenir au moins 6 caractères" : "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .min(
+        6,
+        isFr
+          ? "Le mot de passe doit contenir au moins 6 caractères"
+          : "Password must be at least 6 characters"
+      ),
     fullName: z.string().optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: t("acceptTermsError"),
@@ -118,9 +120,7 @@ export function SignUpForm({
         },
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       pushSignUp({
         method: "password",
@@ -128,9 +128,10 @@ export function SignUpForm({
         billing_period: billingPeriod,
       });
 
-      // Check if session was automatically created (meaning email confirmation is disabled)
       if (data.session) {
-        toast.success(isFr ? "Compte créé avec succès !" : "Account created successfully!");
+        toast.success(
+          isFr ? "Compte créé avec succès !" : "Account created successfully!"
+        );
         window.location.href = finalRedirect;
       } else {
         toast.success(
@@ -148,127 +149,235 @@ export function SignUpForm({
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <h1 className="text-2xl leading-none font-semibold tracking-tight">
-          {t("title")}
-        </h1>
-        <CardDescription>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-1">
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "#d4a850",
+            marginBottom: 10,
+          }}
+        >
+          {isFr ? "Créer un compte" : "Get started"}
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground pt-1">
           {isFr
-            ? "Entrez vos coordonnées et un mot de passe pour créer votre compte."
-            : "Enter your details and a password to create your account."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={(e) => {
-              void form.handleSubmit(onSubmit)(e);
-            }}
-            className="space-y-4"
-          >
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("fullNameLabel")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={t("fullNamePlaceholder")} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("emailLabel")}</FormLabel>
-                  <FormControl>
+            ? "Remplissez vos informations pour créer votre compte."
+            : "Fill in your details to create your account."}
+        </p>
+      </div>
+
+      {/* Form */}
+      <Form {...form}>
+        <form
+          onSubmit={(e) => {
+            void form.handleSubmit(onSubmit)(e);
+          }}
+          className="space-y-5"
+        >
+          {/* Full Name */}
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {t("fullNameLabel")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder={t("fullNamePlaceholder")}
+                      className="pl-10 h-11"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Email */}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {t("emailLabel")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="email"
                       placeholder={t("emailPlaceholder")}
+                      className="pl-10 h-11"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{isFr ? "Mot de passe" : "Password"}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value === true}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked === true)
-                      }
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="font-normal">
-                      {t("acceptTermsPrefix")}{" "}
-                      <Link
-                        href="/legal"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary underline hover:no-underline"
-                      >
-                        {t("termsLink")}
-                      </Link>
-                    </FormLabel>
-                    <FormMessage />
                   </div>
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full sm:w-auto"
-              disabled={loading || !isEmailValid || watchedPassword.length < 6 || !watchedAcceptTerms}
-            >
-              {loading ? t("submitting") : isFr ? "S'inscrire" : "Sign Up"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="flex flex-col gap-2">
-        <Link
-          href="/sign-in"
-          className="text-muted-foreground hover:text-foreground text-center text-sm transition-colors"
-        >
-          {t("hasAccount")}
-        </Link>
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground text-center text-sm transition-colors"
-        >
-          {t("backToHome")}
-        </Link>
-      </CardFooter>
-    </Card>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Password */}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {isFr ? "Mot de passe" : "Password"}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10 h-11"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+                {/* Password strength hint */}
+                {watchedPassword.length > 0 && (
+                  <div className="flex gap-1.5 mt-2">
+                    {[1, 2, 3, 4].map((i) => {
+                      const score = Math.min(
+                        4,
+                        Math.floor(watchedPassword.length / 3)
+                      );
+                      return (
+                        <div
+                          key={i}
+                          className="h-1 flex-1 rounded-full transition-all duration-300"
+                          style={{
+                            background:
+                              i <= score
+                                ? score <= 1
+                                  ? "#ef4444"
+                                  : score === 2
+                                  ? "#f59e0b"
+                                  : score === 3
+                                  ? "#84cc16"
+                                  : "#22c55e"
+                                : "rgba(120,120,120,0.2)",
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </FormItem>
+            )}
+          />
+
+          {/* Accept terms */}
+          <FormField
+            control={form.control}
+            name="acceptTerms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-lg border border-border/40 p-3 bg-muted/20">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value === true}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="font-normal text-sm cursor-pointer">
+                    {t("acceptTermsPrefix")}{" "}
+                    <Link
+                      href="/legal"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium underline underline-offset-4"
+                      style={{ color: "#d4a850" }}
+                    >
+                      {t("termsLink")}
+                    </Link>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Submit */}
+          <Button
+            id="sign-up-submit"
+            type="submit"
+            size="lg"
+            className="w-full h-11 font-semibold text-sm group"
+            style={{
+              background:
+                "linear-gradient(135deg, #c49a30 0%, #e8b84b 50%, #c49a30 100%)",
+              color: "#1a1000",
+            }}
+            disabled={
+              loading ||
+              !isEmailValid ||
+              watchedPassword.length < 6 ||
+              !watchedAcceptTerms
+            }
+          >
+            <span>
+              {loading ? t("submitting") : isFr ? "S'inscrire" : "Create account"}
+            </span>
+            {!loading && (
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border/50" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-background px-3 text-xs text-muted-foreground/60">
+            {isFr ? "Déjà un compte ?" : "Already have an account?"}
+          </span>
+        </div>
+      </div>
+
+      {/* Sign-in link */}
+      <Link
+        href="/sign-in"
+        className="flex items-center justify-center gap-1.5 w-full h-11 rounded-lg border border-border/60 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors"
+      >
+        {t("hasAccount")}
+      </Link>
+    </div>
   );
 }

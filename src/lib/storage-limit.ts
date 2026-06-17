@@ -16,46 +16,19 @@ export interface StorageLimitResult {
 }
 
 /**
- * Returns current usage and limit for the user. Does not modify anything.
- * effective_storage_limit_mb: -1 means unlimited.
- * @param overrideCurrentUsed - When set, use this instead of querying user_storage_usage (e.g. from service-role read for reliable value).
+ * Storage limit check disabled — always allows uploads.
  */
 export async function checkStorageLimit(
-  supabase: SupabaseClient,
-  userId: string,
-  addBytes: number,
-  overrideCurrentUsed?: number
+  _supabase: SupabaseClient,
+  _userId: string,
+  _addBytes: number,
+  _overrideCurrentUsed?: number
 ): Promise<StorageLimitResult> {
-  const [usageRes, planRes] = await Promise.all([
-    overrideCurrentUsed !== undefined
-      ? Promise.resolve({
-          data: { bytes_used: overrideCurrentUsed },
-          error: null,
-        })
-      : supabase
-          .from("user_storage_usage")
-          .select("bytes_used")
-          .eq("user_id", userId)
-          .single(),
-    supabase.rpc("get_effective_plan", { p_user_id: userId }),
-  ]);
-
-  const currentUsed = Number(usageRes.data?.bytes_used ?? 0);
-  const row = Array.isArray(planRes.data) ? planRes.data[0] : planRes.data;
-  const config = row?.config ?? row;
-  const limitMb =
-    config?.effective_storage_limit_mb ??
-    config?.storage_limit_mb ??
-    DEFAULT_LIMIT_MB;
-  const unlimited = limitMb === -1;
-  const limitBytes = unlimited
-    ? Number.MAX_SAFE_INTEGER
-    : limitMb * BYTES_PER_MB;
-
+  // Plan limits disabled: storage is always unlimited
   return {
-    allowed: unlimited || currentUsed + addBytes <= limitBytes,
-    currentUsed,
-    limitBytes,
-    limitMb,
+    allowed: true,
+    currentUsed: 0,
+    limitBytes: Number.MAX_SAFE_INTEGER,
+    limitMb: -1,
   };
 }

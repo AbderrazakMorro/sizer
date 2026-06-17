@@ -46,48 +46,26 @@ function modalityLevel(m: PlanFeatureModality | undefined): number {
 }
 
 /**
- * True si la capacidad está disponible (no es "none" y, para consumibles, límite > 0 o -1).
- * Usa effective_* cuando exista para projects_limit y storage_limit_mb.
+ * Plan limits disabled — always returns true.
  */
 export function isCapabilityAvailable(
-  config: PlanConfig | null | undefined,
-  featureKey: PlanFeatureKey
+  _config: PlanConfig | null | undefined,
+  _featureKey: PlanFeatureKey
 ): boolean {
-  if (!config) return false;
-
-  if (isConsumableKey(featureKey)) {
-    let value: number;
-    if (featureKey === "projects_limit") {
-      value = config.effective_active_projects_limit ?? config.projects_limit;
-    } else if (featureKey === "storage_limit_mb") {
-      value = config.effective_storage_limit_mb ?? config.storage_limit_mb;
-    } else {
-      value = config[featureKey] as number;
-    }
-    return value > 0 || value === -1;
-  }
-
-  const modality = config[featureKey] as PlanFeatureModality | undefined;
-  return modality != null && modality !== "none";
+  return true;
 }
 
 export type MinModality = "basic" | "plus" | "full";
 
 /**
- * True si la modalidad del plan para esa clave es al menos minLevel (basic < plus < full).
- * Solo aplica a claves de modalidad; para consumibles devuelve isCapabilityAvailable.
+ * Plan limits disabled — always returns true.
  */
 export function hasModalityAtLeast(
-  config: PlanConfig | null | undefined,
-  featureKey: PlanFeatureKey,
-  minLevel: MinModality
+  _config: PlanConfig | null | undefined,
+  _featureKey: PlanFeatureKey,
+  _minLevel: MinModality
 ): boolean {
-  if (!config) return false;
-  if (isConsumableKey(featureKey)) {
-    return isCapabilityAvailable(config, featureKey);
-  }
-  const modality = config[featureKey] as PlanFeatureModality | undefined;
-  return modalityLevel(modality) >= modalityLevel(minLevel);
+  return true;
 }
 
 export interface CheckCapabilityOptions {
@@ -96,18 +74,12 @@ export interface CheckCapabilityOptions {
 }
 
 /**
- * Comprueba si la capacidad está disponible, opcionalmente con nivel mínimo de modalidad.
- * - Sin minModality: mismo que isCapabilityAvailable (disponible si no es none).
- * - Con minModality: para claves de modalidad exige ese nivel mínimo (ej. "plus" para filtros).
+ * Plan limits disabled — always returns true.
  */
 export function checkCapability(
-  config: PlanConfig | null | undefined,
-  featureKey: PlanFeatureKey,
-  options?: CheckCapabilityOptions
+  _config: PlanConfig | null | undefined,
+  _featureKey: PlanFeatureKey,
+  _options?: CheckCapabilityOptions
 ): boolean {
-  if (!config) return false;
-  if (options?.minModality != null) {
-    return hasModalityAtLeast(config, featureKey, options.minModality);
-  }
-  return isCapabilityAvailable(config, featureKey);
+  return true;
 }
