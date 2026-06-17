@@ -171,4 +171,86 @@ export async function getProjectById(projectId: string): Promise<{
   }
 }
 
+/**
+ * Allow a client to update limited fields (address, description) on one of
+ * their own active projects. Ownership is verified server-side via the
+ * service_requests table — the client must be the originating requester.
+ */
+export async function updateClientProject(
+  projectId: string,
+  fields: { address?: string; description?: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "Non authentifié" };
+    }
+
+    // Verify ownership: client must have a service request that was converted
+    // to this project.
+    const { data: sr, error: srError } = await supabase
+      .from("service_requests")
+      .select("id")
+      .eq("converted_to_project_id", projectId)
+      .eq("client_id", user.id)
+      .limit(1)
+      .single();
+
+    if (srError || !sr) {
+      return { success: false, error: "Projet introuvable ou accès refusé" };
+    }
+
+    // Only allow updating on active projects.
+    const { data: project, error: projectError } = await supabase
+      .from("projects")
+      .select("status")
+      .eq("id", projectId)
+      .single();
+
+    if (projectError || !project) {
+      return { success: false, error: "Projet introuvable" };
+    }
+
+    if (project.status !== "active") {
+      return {
+        success: false,
+        error: "Seuls les projets actifs peuvent être modifiés",
+      };
+    }
+
+    // Strict allowlist — never let the client touch status, phase, dates, etc.
+    const safeUpdate: { address?: string; description?: string } = {};
+    if (fields.address !== undefined) safeUpdate.address = fields.address;
+    if (fields.description !== undefined)
+      safeUpdate.description = fields.description;
+
+    if (Object.keys(safeUpdate).length === 0) {
+      return { success: true };
+    }
+
+    const { error: updateError } = await supabase
+      .from("projects")
+      .update(safeUpdate)
+      .eq("id", projectId);
+
+    if (updateError) {
+      console.error("[updateClientProject] Error:", updateError);
+      return { success: false, error: "Erreur lors de la mise à jour" };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[updateClientProject] Exception:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Erreur inattendue",
+    };
+  }
+}
+
 // Made with Bob
