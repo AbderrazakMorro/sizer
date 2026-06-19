@@ -298,6 +298,12 @@
   transform: scale(1.05);
 }
 
+/* Material Symbols Outlined: ensure the correct font is used even if other theme font styles apply */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
 /* Minimalist Input Styles */
 .landing-input {
   background: transparent;

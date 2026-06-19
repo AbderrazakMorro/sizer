@@ -90,7 +90,7 @@ const nextConfig: NextConfig = {
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.googletagmanager.com https://va.vercel-scripts.com https://vercel.live https://challenges.cloudflare.com",
             "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for Tailwind
             "img-src 'self' data: https: blob:",
-            "font-src 'self' data: https://fonts.gstatic.com",
+            "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
             // connect-src: Supabase, Backblaze, GTM/GA4, PDF fonts; blob: para react-pdf
             process.env.NODE_ENV === "production"
               ? "connect-src 'self' blob: " + PRODUCTION_CSP

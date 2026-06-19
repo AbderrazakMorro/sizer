@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { LandingContactForm } from "./_sections/landing-contact-form";
 import { getAdminClient } from "@/lib/supabase/admin";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight, Handshake, LayoutGrid, PenTool, ShoppingBag } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -265,9 +265,7 @@ export default async function HomePage({
             <div className="flex flex-col border-t border-outline-variant/30">
               {/* Service Item 1 */}
               <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
-                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
-                  architecture
-                </span>
+                <LayoutGrid className="text-primary mr-8 w-9 h-9" aria-hidden />
                 <div className="flex-1">
                   <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
                     Architecture
@@ -278,15 +276,14 @@ export default async function HomePage({
                       : "Architectural design, feasibility studies, and construction supervision."}
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                  arrow_forward
-                </span>
+                <ArrowRight
+                  className="text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300 mt-1"
+                  aria-hidden
+                />
               </div>
               {/* Service Item 2 */}
               <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
-                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
-                  chair
-                </span>
+                <PenTool className="text-primary mr-8 w-9 h-9" aria-hidden />
                 <div className="flex-1">
                   <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
                     {isFr ? "Design d'intérieur" : "Interior Design"}
@@ -297,15 +294,14 @@ export default async function HomePage({
                       : "Interior space layout, material choice, custom furniture design."}
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                  arrow_forward
-                </span>
+                <ArrowRight
+                  className="text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300 mt-1"
+                  aria-hidden
+                />
               </div>
               {/* Service Item 3 */}
               <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
-                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
-                  design_services
-                </span>
+                <PenTool className="text-primary mr-8 w-9 h-9" aria-hidden />
                 <div className="flex-1">
                   <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
                     {isFr ? "Direction Artistique" : "Art Direction"}
@@ -316,15 +312,14 @@ export default async function HomePage({
                       : "Visual identity creation, space styling, and scenography."}
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                  arrow_forward
-                </span>
+                <ArrowRight
+                  className="text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300 mt-1"
+                  aria-hidden
+                />
               </div>
               {/* Service Item 4 */}
               <div className="py-10 border-b border-outline-variant/30 group hover:bg-surface-container-low/30 transition-colors px-4 -mx-4 cursor-pointer flex items-start">
-                <span className="material-symbols-outlined text-primary text-3xl mr-8 font-light">
-                  handshake
-                </span>
+                <Handshake className="text-primary mr-8 w-9 h-9" aria-hidden />
                 <div className="flex-1">
                   <h3 className="text-headline-md font-headline-md text-on-surface uppercase mb-2 text-xl sm:text-2xl">
                     {isFr ? "Conseil & Accompagnement" : "Consulting & Support"}
@@ -335,9 +330,10 @@ export default async function HomePage({
                       : "Technical and creative expertise at every stage of your project."}
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                  arrow_forward
-                </span>
+                <ArrowRight
+                  className="text-on-surface-variant group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 duration-300 mt-1"
+                  aria-hidden
+                />
               </div>
             </div>
           </div>

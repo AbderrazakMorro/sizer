@@ -39,6 +39,8 @@ import { appPath } from "@/lib/app-paths";
 import { reportError, getProjectStatusLabel } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Project, Profile } from "@/types";
+import { getArchitectClients, getArchitectProjects } from "@/app/actions/architect-project-actions";
+
 
 interface DashboardStats {
   activeProjects: number;
@@ -127,39 +129,68 @@ export default function DashboardPage() {
       const now = new Date();
       const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      const { data: activeProjects, error: activeError } = await supabase
-        .from("projects")
-        .select("id, created_at")
-        .eq("status", "active");
+      const projectsResult = await getArchitectProjects();
 
-      const { data: activeProjectsLastMonth, error: activeLastMonthError } =
-        await supabase
-          .from("projects")
-          .select("id")
-          .eq("status", "active")
-          .lt("created_at", firstDayThisMonth.toISOString());
+      if (!projectsResult.success || !projectsResult.data) {
+        toast.error(t("toastLoadError"), { id: "dashboard-stats" });
+        return;
+      }
 
-      const { data: clients, error: clientsError } = await supabase
-        .from("clients")
-        .select("id, created_at");
+      const architectProjects = projectsResult.data;
+      const architectProjectIds = architectProjects.map((p) => p.id);
 
-      const { data: newClients, error: newClientsError } = await supabase
+      const activeProjects = architectProjects.filter((p) => p.status === "active");
+      const activeProjectsLastMonth = activeProjects.filter((p) => {
+        // Some TS `Project` types may not include `created_at`; read it defensively.
+        const createdAt = (p as any).created_at as string | null | undefined;
+        const ts = createdAt ? new Date(createdAt).getTime() : 0;
+        return ts < firstDayThisMonth.getTime();
+      });
+
+
+      const clientsResult = await getArchitectClients();
+
+      if (!clientsResult.success || !clientsResult.data) {
+        toast.error(t("toastLoadError"), { id: "dashboard-stats" });
+        return;
+      }
+
+      // unique clients linked to architect projects
+      const clients = clientsResult.data;
+
+      // approximate new clients this month by counting among these client ids
+      const { data: newClientsRows, error: newClientsError } = await supabase
         .from("clients")
         .select("id")
+        .in(
+          "id",
+          clients.map((c) => c.id)
+        )
         .gte("created_at", firstDayThisMonth.toISOString());
 
+      if (newClientsError) {
+        toast.error(t("toastLoadError"), { id: "dashboard-stats" });
+        return;
+      }
+
+      const newClients = newClientsRows ?? [];
+
+      // Expenses filtered to architect project set.
       const { data: additionalCosts, error: additionalCostsError } =
         await supabase
           .from("additional_project_costs")
           .select("amount")
-          .gte("created_at", firstDayThisMonth.toISOString());
+          .gte("created_at", firstDayThisMonth.toISOString())
+          .in("project_id", architectProjectIds);
 
       const { data: confirmedOrders, error: confirmedOrdersError } =
         await supabase
           .from("purchase_orders")
           .select("id")
           .eq("status", "confirmed")
-          .gte("created_at", firstDayThisMonth.toISOString());
+          .gte("created_at", firstDayThisMonth.toISOString())
+          .in("project_id", architectProjectIds);
+
 
       let ordersTotal = 0;
       if (confirmedOrders && confirmedOrders.length > 0) {
@@ -193,10 +224,12 @@ export default function DashboardPage() {
           0
         ) || 0;
 
+      // Recent projects restricted to architect project ids.
       const { data: activeRecent, error: activeRecentError } = await supabase
         .from("projects")
         .select("*, client:clients(full_name)")
         .eq("status", "active")
+        .in("id", architectProjectIds)
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -205,6 +238,7 @@ export default function DashboardPage() {
           .from("projects")
           .select("*, client:clients(full_name)")
           .in("status", ["completed", "cancelled"])
+          .in("id", architectProjectIds)
           .or(
             `completed_date.gte.${firstDayThisMonth.toISOString()},created_at.gte.${firstDayThisMonth.toISOString()}`
           )
@@ -227,9 +261,6 @@ export default function DashboardPage() {
         .slice(0, 5);
 
       if (
-        activeError ||
-        activeLastMonthError ||
-        clientsError ||
         newClientsError ||
         additionalCostsError ||
         confirmedOrdersError ||
@@ -238,6 +269,7 @@ export default function DashboardPage() {
         toast.error(t("toastLoadError"), { id: "dashboard-stats" });
         return;
       }
+
 
       const activeCount = activeProjects?.length || 0;
       const activeLastMonthCount = activeProjectsLastMonth?.length || 0;

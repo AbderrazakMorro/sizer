@@ -91,11 +91,11 @@ export default async function AuthLayout({
         />
 
         {/* Logo top-left */}
-        <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <SizerLogo height={32} />
-          </Link>
-        </div>
+<div className="relative z-10 -ml-2">
+  <Link href="/" className="inline-flex items-center">
+    <SizerLogo height={200} className="filter brightness-0 invert" />          
+  </Link>
+</div>
 
         {/* Center hero text */}
         <div className="relative z-10 flex-1 flex flex-col justify-center py-12">
@@ -198,7 +198,7 @@ export default async function AuthLayout({
               fontStyle: "italic",
             }}
           >
-            "Built for design studios that care about every detail."
+            "Build a home, not just a house."
           </p>
         </div>
       </div>
@@ -218,7 +218,7 @@ export default async function AuthLayout({
           {/* Mobile-only logo */}
           <div className="lg:hidden">
             <Link href="/">
-              <SizerLogo height={24} />
+            <SizerLogo height={64} className="filter hue-rotate-[45deg]" />
             </Link>
           </div>
         </div>
